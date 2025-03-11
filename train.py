@@ -37,12 +37,12 @@ def train(model, optimizer, loss_fn, dataloader, metrics):
                 # y_pred = scaler[1].inverse_transform(np.array(y_pred).reshape(-1, 1))
                 # y_batch = scaler[1].inverse_transform(np.array(y_batch).reshape(-1, 1))
                 summary_batch = {metric: metrics[metric](y_pred, y_batch)
-                                 for metric in metrics}
+                                for metric in metrics}
                 summary_batch['loss'] = loss.item()
                 summ.append(summary_batch)
 
-        t.set_postfix(loss='{:010.7f}'.format(loss.item()))
-        t.update()
+            t.set_postfix(loss='{:010.7f}'.format(loss.item()))
+            t.update()
 
     metrics_mean = {metric: np.mean([x[metric]
                                      for x in summ]) for metric in summ[0]}
@@ -55,22 +55,25 @@ def train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloa
     best_val_rmse = 0.0
 
     for epoch in range(epochs):
-        # Run one epoch
-        logging.info("Epoch {}/{}".format(epoch + 1, epochs))
+        try:
+            # Run one epoch
+            logging.info("Epoch {}/{}".format(epoch + 1, epochs))
 
-        # compute number of batches in one epoch (one full pass over the training set)
-        train(model, optimizer, loss_fn, train_dataloader, metrics)
-        # train(model, optimizer, loss_fn, test_dataloader, metrics)
+            # compute number of batches in one epoch (one full pass over the training set)
+            train(model, optimizer, loss_fn, train_dataloader, metrics)
+            # train(model, optimizer, loss_fn, test_dataloader, metrics)
 
-        # Evaluate for one epoch on validation set
-        val_metrics = evaluate(model, loss_fn, test_dataloader, metrics)
+            # Evaluate for one epoch on validation set
+            val_metrics = evaluate(model, loss_fn, test_dataloader, metrics)
 
-        val_rmse = val_metrics['RMSE']
-        is_best = val_rmse <= best_val_rmse
+            val_rmse = val_metrics['RMSE']
+            is_best = val_rmse <= best_val_rmse
 
-        if is_best:
-            logging.info("- Found new best RMSE")
-            best_val_rmse = val_rmse
+            if is_best:
+                logging.info("- Found new best RMSE")
+                best_val_rmse = val_rmse
+        except KeyboardInterrupt:
+            break
     # evaluate_graph(model, test_dataloader)
 
 
