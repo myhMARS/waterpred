@@ -44,21 +44,3 @@ def evaluate(model, loss_fn, dataloader, metrics):
 def show(output_batch, labels_batch):
     plt.plot(range(output_batch.shape[0]), [i[0] - j[0] + i[1] - j[1] for i, j in zip(output_batch, labels_batch)])
     plt.show()
-
-
-def evaluate_graph(model, dataloader):
-    model.eval()
-    for data_batch, labels_batch in dataloader:
-        data_batch = data_batch.to(device)
-
-        output_batch = model(data_batch)
-        output_batch = output_batch.data.cpu().numpy()
-
-        for j in range(output_batch.shape[0]):
-            # print(labels_batch[j, 0])
-            plt.scatter([j], [labels_batch[j, 0]], color='green')
-            for i in range(output_batch.shape[1]):
-                color = ['yellow', 'blue', 'red']
-                choose = int(i / (output_batch.shape[1] / 3))
-                plt.scatter([j], [output_batch[j, i]], color=color[choose])
-        plt.show()
