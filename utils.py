@@ -37,7 +37,7 @@ def set_logger():
     logger.setLevel(logging.INFO)
 
 
-def show_action_data(model, dataloader, scaler=None):
+def show_action_data(model, dataloader, scaler=None, time_length=None):
     model.eval()
 
     y_pred, y_true = [], []
@@ -54,36 +54,50 @@ def show_action_data(model, dataloader, scaler=None):
 
     plt.ion()
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(2, 1)
     ymin = min(np.min(y_pred), np.min(y_true))
     ymax = max(np.max(y_pred), np.max(y_true))
-    time_length = 24*7
     y_pred_show, y_true_show = [], []
     for i in range(len(y_pred)):
-        y_true_show.append(y_true[i][0])
+        if len(y_true_show) > len(y_true[i]) - 1:
+            for _ in range(len(y_true[i]) - 1):
+                y_true_show.pop()
+        y_true_show.extend(y_true[i])
 
-        if i % len(y_pred[i]) == 0:
-            y_pred_show.extend(y_pred[i])
+        # if i % len(y_pred[i]) == 0:
+        #     y_pred_show.extend(y_pred[i])
 
-        # if len(y_pred_show) > len(y_pred[i]) - 1:
-        #     for _ in range(len(y_pred[i]) - 1):
-        #         y_pred_show.pop()
-        # y_pred_show.extend(y_pred[i])
+        if len(y_pred_show) > len(y_pred[i]) - 1:
+            for _ in range(len(y_pred[i]) - 1):
+                y_pred_show.pop()
+        y_pred_show.extend(y_pred[i])
 
-        if len(y_pred_show) >= time_length:
-            for _ in range(len(y_pred_show) - time_length):
-                del y_pred_show[0]
-                del y_true_show[0]
+        ax[0].clear()
+        ax[1].clear()
+        if time_length:
+            if len(y_pred_show) >= time_length:
+                for _ in range(len(y_pred_show) - time_length):
+                    del y_pred_show[0]
+                    del y_true_show[0]
+        #     for x in range(i % len(y_pred[i]), len(y_true_show), len(y_pred[i])):
+        #         ax[1].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
+        #         ax[0].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
+        # else:
+        #     for x in range(0, len(y_true_show), len(y_pred[i])):
+        #         ax[1].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
+        #         ax[0].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
         # print(len(y_pred_show), len(y_true_show))
-        ax.clear()
-        ax.set_ylim([ymin - 0.5, ymax])
-        ax.plot(range(len(y_pred_show)), y_pred_show, label=f'prediction {i}', color='r')
-        ax.plot(range(len(y_true_show)), y_true_show, label=f'true label {i}', color='b')
-        ax.plot(range(len(y_true_show)),
-                [i - j - 0.5 for i, j in zip(y_pred_show[:len(y_true_show)], y_true_show)],
-                label=f'diff - 0.5 {i}',
-                color='g')
-        ax.legend()
+
+        ax[0].set_ylim([ymin - (ymax - ymin) / 10, ymax])
+        ax[0].plot(range(len(y_pred_show)), y_pred_show, label=f'prediction {i}', color='r')
+        ax[0].plot(range(len(y_true_show)), y_true_show, label=f'true label {i}', color='b')
+
+        ax[1].plot(range(len(y_true_show)),
+                   [i - j for i, j in zip(y_pred_show[:len(y_true_show)], y_true_show)],
+                   label=f'diff {i}',
+                   color='y')
+        ax[0].legend()
+        ax[1].legend()
         plt.draw()
         plt.pause(0.2)
 
