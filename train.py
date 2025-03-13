@@ -115,7 +115,8 @@ if __name__ == '__main__':
     epochs = 200
     logging.info("Starting training for {} epoch(s)".format(epochs))
     train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
-    torch.save(model,'waterlevel_model.pt')
-    model = torch.load('waterlevel_model.pt')
+    torch.save(model.state_dict(), 'waterlevel_model.pt')
+    model = net.Waterlevel_Model(5, 64, pred_length, 3).to(device)
+    model.load_state_dict(torch.load('waterlevel_model.pt'))
 
-    utils.show_action_data(model, test_dataloader, scaler[1], 24*3)
+    utils.show_action_data(model, test_dataloader, scaler[1], 24 * 3)

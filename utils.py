@@ -80,8 +80,8 @@ def show_action_data(model, dataloader, scaler=None, time_length=None):
                     del y_pred_show[0]
                     del y_true_show[0]
         #     for x in range(i % len(y_pred[i]), len(y_true_show), len(y_pred[i])):
-        #         ax[1].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
-        #         ax[0].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
+        ax[1].axvline(x=len(y_pred_show)-y_pred[i] - 1, color='gray', linestyle='--', alpha=0.5)
+        ax[0].axvline(x=len(y_pred_show)-y_pred[i] - 1, color='gray', linestyle='--', alpha=0.5)
         # else:
         #     for x in range(0, len(y_true_show), len(y_pred[i])):
         #         ax[1].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
