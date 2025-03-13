@@ -106,7 +106,7 @@ if __name__ == '__main__':
         ), batch_size=64, shuffle=False
     )
 
-    model = net.Waterlevel_Model(6, 64, pred_length, 3).to(device)
+    model = net.Waterlevel_Model(5, 64, pred_length, 3).to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.0001)
     loss_fn = nn.MSELoss()
 
@@ -115,4 +115,7 @@ if __name__ == '__main__':
     epochs = 200
     logging.info("Starting training for {} epoch(s)".format(epochs))
     train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
+    torch.save(model,'waterlevel_model.pt')
+    model = torch.load('waterlevel_model.pt')
+
     utils.show_action_data(model, test_dataloader, scaler[1], 24*3)
