@@ -11,7 +11,7 @@ from sklearn.preprocessing import MinMaxScaler
 import utils
 import model.net as net
 import model.data_loader as data_loader
-from evaluate import evaluate, evaluate_graph
+from evaluate import evaluate
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -37,7 +37,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics):
                 # y_pred = scaler[1].inverse_transform(np.array(y_pred).reshape(-1, 1))
                 # y_batch = scaler[1].inverse_transform(np.array(y_batch).reshape(-1, 1))
                 summary_batch = {metric: metrics[metric](y_pred, y_batch)
-                                for metric in metrics}
+                                 for metric in metrics}
                 summary_batch['loss'] = loss.item()
                 summ.append(summary_batch)
 
@@ -52,7 +52,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics):
 
 
 def train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs):
-    best_val_rmse = 0.0
+    best_val_rmse = 100
 
     for epoch in range(epochs):
         try:
@@ -70,7 +70,7 @@ def train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloa
             is_best = val_rmse <= best_val_rmse
 
             if is_best:
-                logging.info("- Found new best RMSE")
+                logging.info("- Found new best RMSE at epoch {}/{}".format(epoch + 1, epochs))
                 best_val_rmse = val_rmse
         except KeyboardInterrupt:
             break
@@ -85,8 +85,8 @@ if __name__ == '__main__':
         torch.cuda.manual_seed(42)
 
     scaler = (MinMaxScaler(), MinMaxScaler())
-    seq_length = 24
-    pred_length = 6
+    seq_length = 12
+    pred_length = 10
     train_dataloader = DataLoader(
         data_loader.WaterLevelDataset(
             "dataset.csv",
@@ -94,7 +94,7 @@ if __name__ == '__main__':
             scaler=scaler,
             seq_length=seq_length,
             pred_length=pred_length,
-        ), batch_size=64, shuffle=False
+        ), batch_size=64, shuffle=True
     )
     test_dataloader = DataLoader(
         data_loader.WaterLevelDataset(
@@ -106,7 +106,7 @@ if __name__ == '__main__':
         ), batch_size=64, shuffle=False
     )
 
-    model = net.Waterlevel_Model(5, 64, pred_length, 3).to(device)
+    model = net.Waterlevel_Model(6, 64, pred_length, 3).to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.0001)
     loss_fn = nn.MSELoss()
 
@@ -115,4 +115,4 @@ if __name__ == '__main__':
     epochs = 200
     logging.info("Starting training for {} epoch(s)".format(epochs))
     train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
-    utils.show_action_data(model, test_dataloader,scaler[1])
+    utils.show_action_data(model, test_dataloader, scaler[1], 24*3)
