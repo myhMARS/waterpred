@@ -1,4 +1,5 @@
 import logging
+import random
 
 import torch
 import numpy as np
@@ -77,28 +78,47 @@ def train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloa
     # evaluate_graph(model, test_dataloader)
 
 
-if __name__ == '__main__':
-    utils.set_logger()
+def init_seed():
     torch.manual_seed(42)
-    logging.info("cuda is {}".format(torch.cuda.is_available()))
+    np.random.seed(42)
+    random.seed(42)
     if torch.cuda.is_available():
         torch.cuda.manual_seed(42)
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
+
+
+if __name__ == '__main__':
+    utils.set_logger()
+    init_seed()
+
+    logging.info("cuda is {}".format(torch.cuda.is_available()))
 
     scaler = (MinMaxScaler(), MinMaxScaler())
     seq_length = 12
-    pred_length = 10
-    dataset = data_loader.WaterLevelDataset(
-            "dataset.csv",
-            train=False,
-            scaler=scaler,
-            seq_length=seq_length,
-            pred_length=pred_length,
-        )
-    train_dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
-    dataset.train = False
-    test_dataloader = DataLoader(dataset, batch_size=64, shuffle=False)
+    pred_length = 6
+    train_dataset = data_loader.WaterLevelDataset(
+        "dataset.csv",
+        train=True,
+        scaler=scaler,
+        seq_length=seq_length,
+        pred_length=pred_length,
+    )
+    train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False)
+    print(len(train_dataset))
+    test_dataset = data_loader.WaterLevelDataset(
+        "dataset.csv",
+        train=False,
+        scaler=scaler,
+        seq_length=seq_length,
+        pred_length=pred_length,
+    )
 
-    model = net.Waterlevel_Model(5, 64, pred_length, 3).to(device)
+    test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False)
+    input_size = 8
+    hidden_size = 64
+    output_size = pred_length
+    model = net.Waterlevel_Model(input_size, hidden_size, output_size, 1).to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.0001)
     loss_fn = nn.MSELoss()
 
@@ -108,6 +128,7 @@ if __name__ == '__main__':
     logging.info("Starting training for {} epoch(s)".format(epochs))
     train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
     torch.save(model.state_dict(), 'waterlevel_model.pt')
-    model.load_state_dict(torch.load('waterlevel_model.pt', map_location='cpu'))
+    model.load_state_dict(torch.load('waterlevel_model.pt'))
     model.eval()
-    utils.show_action_data(model, train_dataloader, scaler[1])
+    utils.show_action_data(model, train_dataloader, scaler=scaler[1], res_file=f'train_res_{seq_length}_{pred_length}')
+    utils.show_action_data(model, test_dataloader, scaler=scaler[1], res_file=f'test_res_{seq_length}_{pred_length}')
