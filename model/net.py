@@ -7,27 +7,22 @@ from sklearn.metrics import mean_squared_error
 class Waterlevel_Model(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=2):
         super(Waterlevel_Model, self).__init__()
-        # self.conv1d = nn.Conv1d(in_channels=input_size, out_channels=hidden_size, kernel_size=3, padding=1)
-        # self.relu = nn.ReLU()
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_size, output_size)
+        self.conv = nn.Sequential(
+            nn.Conv1d(input_size, hidden_size, kernel_size=3),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=3, stride=1),
+        )
 
-        # self.fc1 = nn.Linear(input_size, hidden_size)
-        # self.encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_size, nhead=4, batch_first=True)
-        # self.transformer = nn.TransformerEncoder(self.encoder_layer, num_layers=num_layers)
-        # self.fc2 = nn.Linear(hidden_size, output_size)
+        self.lstm = nn.LSTM(hidden_size, hidden_size, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
         batch_size, seq_len, _ = x.size()
-        # x = x.permute(0, 2, 1)
-        # x = self.conv1d(x)
-        # x = self.relu(x)
-        # x = x.permute(0, 2, 1)
+        x = x.permute(0, 2, 1)
+        x = self.conv(x)
+        x = x.permute(0, 2, 1)
         out, _ = self.lstm(x)
-        # out = self.fc1(x)
-        # out = self.transformer(out)
         out = self.fc(out)
-        # print(out)
         return out[:, -1, :]
 
 
@@ -35,6 +30,11 @@ def RMSE(output, target):
     return np.sqrt(mean_squared_error(output, target))
 
 
+def MAE(output, target):
+    return np.mean(np.abs((output - target)))
+
+
 metrics = {
     'RMSE': RMSE,
+    'MAE': MAE,
 }
