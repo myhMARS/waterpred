@@ -87,24 +87,16 @@ if __name__ == '__main__':
     scaler = (MinMaxScaler(), MinMaxScaler())
     seq_length = 12
     pred_length = 10
-    train_dataloader = DataLoader(
-        data_loader.WaterLevelDataset(
-            "dataset.csv",
-            train=True,
-            scaler=scaler,
-            seq_length=seq_length,
-            pred_length=pred_length,
-        ), batch_size=64, shuffle=True
-    )
-    test_dataloader = DataLoader(
-        data_loader.WaterLevelDataset(
+    dataset = data_loader.WaterLevelDataset(
             "dataset.csv",
             train=False,
             scaler=scaler,
             seq_length=seq_length,
             pred_length=pred_length,
-        ), batch_size=64, shuffle=False
-    )
+        )
+    train_dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
+    dataset.train = False
+    test_dataloader = DataLoader(dataset, batch_size=64, shuffle=False)
 
     model = net.Waterlevel_Model(5, 64, pred_length, 3).to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.0001)
@@ -116,7 +108,6 @@ if __name__ == '__main__':
     logging.info("Starting training for {} epoch(s)".format(epochs))
     train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
     torch.save(model.state_dict(), 'waterlevel_model.pt')
-    model = net.Waterlevel_Model(5, 64, pred_length, 3).to(device)
-    model.load_state_dict(torch.load('waterlevel_model.pt'))
-
-    utils.show_action_data(model, test_dataloader, scaler[1], 24 * 3)
+    model.load_state_dict(torch.load('waterlevel_model.pt', map_location='cpu'))
+    model.eval()
+    utils.show_action_data(model, train_dataloader, scaler[1])

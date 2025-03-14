@@ -10,12 +10,6 @@ class Waterlevel_Model(nn.Module):
         # self.conv1d = nn.Conv1d(in_channels=input_size, out_channels=hidden_size, kernel_size=3, padding=1)
         # self.relu = nn.ReLU()
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-        self.attention = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size),
-            nn.Tanh(),
-            nn.Linear(hidden_size, 1),
-            nn.Softmax(dim=1)
-        )
         self.fc = nn.Linear(hidden_size, output_size)
 
         # self.fc1 = nn.Linear(input_size, hidden_size)
@@ -30,14 +24,11 @@ class Waterlevel_Model(nn.Module):
         # x = self.relu(x)
         # x = x.permute(0, 2, 1)
         out, _ = self.lstm(x)
-        attention_weights = self.attention(out)  # 输出形状: (batch_size, seq_len, 1)
-        out = torch.sum(out * attention_weights, dim=1)
-        out = self.fc(out)
         # out = self.fc1(x)
         # out = self.transformer(out)
-        # out = self.fc2(out)
+        out = self.fc(out)
         # print(out)
-        return out
+        return out[:, -1, :]
 
 
 def RMSE(output, target):

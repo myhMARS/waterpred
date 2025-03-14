@@ -51,13 +51,14 @@ def show_action_data(model, dataloader, scaler=None, time_length=None):
             labels_batch = scaler.inverse_transform(np.array(labels_batch).reshape(-1, output_batch.shape[-1]))
         y_pred.extend(output_batch)
         y_true.extend(labels_batch)
-
+    print(len(y_pred[0]))
     plt.ion()
 
     fig, ax = plt.subplots(2, 1)
     ymin = min(np.min(y_pred), np.min(y_true))
     ymax = max(np.max(y_pred), np.max(y_true))
     y_pred_show, y_true_show = [], []
+    diff = []
     for i in range(len(y_pred)):
         if len(y_true_show) > len(y_true[i]) - 1:
             for _ in range(len(y_true[i]) - 1):
@@ -71,7 +72,7 @@ def show_action_data(model, dataloader, scaler=None, time_length=None):
             for _ in range(len(y_pred[i]) - 1):
                 y_pred_show.pop()
         y_pred_show.extend(y_pred[i])
-
+        diff.extend(y_pred[i]-y_true[i])
         ax[0].clear()
         ax[1].clear()
         if time_length:
@@ -80,8 +81,8 @@ def show_action_data(model, dataloader, scaler=None, time_length=None):
                     del y_pred_show[0]
                     del y_true_show[0]
         #     for x in range(i % len(y_pred[i]), len(y_true_show), len(y_pred[i])):
-        ax[1].axvline(x=len(y_pred_show)-y_pred[i] - 1, color='gray', linestyle='--', alpha=0.5)
-        ax[0].axvline(x=len(y_pred_show)-y_pred[i] - 1, color='gray', linestyle='--', alpha=0.5)
+        ax[1].axvline(x=len(diff) - len(y_pred[i]) - 1, color='gray', linestyle='--', alpha=0.5)
+        ax[0].axvline(x=len(y_pred_show) - len(y_pred[i]) - 1, color='gray', linestyle='--', alpha=0.5)
         # else:
         #     for x in range(0, len(y_true_show), len(y_pred[i])):
         #         ax[1].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
@@ -92,14 +93,14 @@ def show_action_data(model, dataloader, scaler=None, time_length=None):
         ax[0].plot(range(len(y_pred_show)), y_pred_show, label=f'prediction {i}', color='r')
         ax[0].plot(range(len(y_true_show)), y_true_show, label=f'true label {i}', color='b')
 
-        ax[1].plot(range(len(y_true_show)),
-                   [i - j for i, j in zip(y_pred_show[:len(y_true_show)], y_true_show)],
+        ax[1].plot(range(len(diff)),
+                   diff,
                    label=f'diff {i}',
                    color='y')
         ax[0].legend()
         ax[1].legend()
         plt.draw()
-        plt.pause(0.2)
+        plt.pause(0.01)
 
 
 def get_xgboost_feature(X_train, y_train):
