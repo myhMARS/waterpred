@@ -37,7 +37,7 @@ def set_logger():
     logger.setLevel(logging.INFO)
 
 
-def show_action_data(model, dataloader, scaler=None, time_length=None):
+def show_action_data(model, dataloader, scaler=None, time_length=None, res_file=None):
     model.eval()
 
     y_pred, y_true = [], []
@@ -51,7 +51,6 @@ def show_action_data(model, dataloader, scaler=None, time_length=None):
             labels_batch = scaler.inverse_transform(np.array(labels_batch).reshape(-1, output_batch.shape[-1]))
         y_pred.extend(output_batch)
         y_true.extend(labels_batch)
-    print(len(y_pred[0]))
     plt.ion()
 
     fig, ax = plt.subplots(2, 1)
@@ -72,7 +71,7 @@ def show_action_data(model, dataloader, scaler=None, time_length=None):
             for _ in range(len(y_pred[i]) - 1):
                 y_pred_show.pop()
         y_pred_show.extend(y_pred[i])
-        diff.extend(y_pred[i]-y_true[i])
+        diff.append(np.mean(np.abs(y_pred[i] - y_true[i])))
         ax[0].clear()
         ax[1].clear()
         if time_length:
@@ -89,7 +88,7 @@ def show_action_data(model, dataloader, scaler=None, time_length=None):
         #         ax[0].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
         # print(len(y_pred_show), len(y_true_show))
 
-        ax[0].set_ylim([ymin - (ymax - ymin) / 10, ymax])
+        ax[0].set_ylim([ymin, ymax])
         ax[0].plot(range(len(y_pred_show)), y_pred_show, label=f'prediction {i}', color='r')
         ax[0].plot(range(len(y_true_show)), y_true_show, label=f'true label {i}', color='b')
 
@@ -101,6 +100,8 @@ def show_action_data(model, dataloader, scaler=None, time_length=None):
         ax[1].legend()
         plt.draw()
         plt.pause(0.01)
+    fig.savefig(f'{res_file}.svg')
+    plt.close()
 
 
 def get_xgboost_feature(X_train, y_train):
