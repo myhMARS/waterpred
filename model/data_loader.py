@@ -3,7 +3,6 @@ import pandas as pd
 from torch.utils.data import Dataset
 
 
-
 class WaterLevelDataset(Dataset):
     def __init__(self, file_path, train, seq_length, pred_length, scaler, split_ratio=0.8):
         self.file_path = file_path
@@ -21,8 +20,6 @@ class WaterLevelDataset(Dataset):
         data_train, data_test = sequences[:train_size], sequences[train_size:]
         self.train_data = data_train
         self.test_data = data_test
-
-
 
     def __len__(self):
         return len(self.train_data) if self.train else len(self.test_data)
