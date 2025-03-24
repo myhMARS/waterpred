@@ -1,0 +1,22 @@
+database:
+  name: waterpred
+  user: ${DB_USER}
+  pwd: ${DB_PWD}
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+
+tables:
+  waterinfo:
+    columns:
+      id: "INT PRIMARY KEY AUTO_INCREMENT"
+      times: "DATETIME NOT NULL"
+      temperature: "DECIMAL(5,2)"
+      humidity: "DECIMAL(5,2)"
+      winddirection: "VARCHAR(10)"
+      windpower: "DECIMAL(5,2)"
+      rains: "DECIMAL(5,2)"
+      rains63000120: "DECIMAL(5,2)"
+      waterlevels63000120: "DECIMAL(5,2)"
+      rains63000100: "DECIMAL(5,2)"
+      waterlevels63000100: "DECIMAL(5,2)"
+      waterlevel: "DECIMAL(10,2)"
