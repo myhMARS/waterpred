@@ -19,4 +19,4 @@ tables:
       waterlevels63000120: "DECIMAL(5,2)"
       rains63000100: "DECIMAL(5,2)"
       waterlevels63000100: "DECIMAL(5,2)"
-      waterlevel: "DECIMAL(10,2)"
+      waterlevels: "DECIMAL(10,2)"

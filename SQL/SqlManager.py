@@ -46,7 +46,6 @@ class MysqlConnecter:
     def create_tables(self):
         for table_name, table_info in self.config["tables"].items():
             columns = ",".join([f"{col} {data_type}" for col, data_type in table_info["columns"].items()])
-            print(columns)
             sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns})"
             self.cursor.execute(sql)
         self.conn.commit()
