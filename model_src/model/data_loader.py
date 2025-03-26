@@ -9,8 +9,8 @@ class WaterLevelDataset(Dataset):
         self.train = train
         self.df = pd.read_csv(self.file_path)
 
-        X = scaler[0].fit_transform(self.df.drop(columns=['waterlevels']))
-        y = scaler[1].fit_transform(self.df.waterlevels_smooth.values.reshape(-1, 1))
+        X = scaler[0].fit_transform(self.df.drop(columns=['waterlevels_smooth']))
+        y = scaler[1].fit_transform(self.df.waterlevels.values.reshape(-1, 1))
         sequences = []
         for i in range(len(X) - seq_length - pred_length):
             seq_x = (X[i: i + seq_length, :])
