@@ -51,7 +51,6 @@ def show_action_data(model, dataloader, scaler=None, time_length=None, res_file=
             labels_batch = scaler.inverse_transform(np.array(labels_batch).reshape(-1, output_batch.shape[-1]))
         y_pred.extend(output_batch)
         y_true.extend(labels_batch)
-    plt.ion()
 
     fig, ax = plt.subplots(2, 1)
     ymin = min(np.min(y_pred), np.min(y_true))
@@ -72,34 +71,34 @@ def show_action_data(model, dataloader, scaler=None, time_length=None, res_file=
                 y_pred_show.pop()
         y_pred_show.extend(y_pred[i])
         diff.append(np.mean(np.abs(y_pred[i] - y_true[i])))
-        ax[0].clear()
-        ax[1].clear()
+        # ax[0].clear()
+        # ax[1].clear()
         if time_length:
             if len(y_pred_show) >= time_length:
                 for _ in range(len(y_pred_show) - time_length):
                     del y_pred_show[0]
                     del y_true_show[0]
         #     for x in range(i % len(y_pred[i]), len(y_true_show), len(y_pred[i])):
-        ax[1].axvline(x=len(diff) - len(y_pred[i]) - 1, color='gray', linestyle='--', alpha=0.5)
-        ax[0].axvline(x=len(y_pred_show) - len(y_pred[i]) - 1, color='gray', linestyle='--', alpha=0.5)
+        # ax[1].axvline(x=len(diff) - len(y_pred[i]) - 1, color='gray', linestyle='--', alpha=0.5)
+        # ax[0].axvline(x=len(y_pred_show) - len(y_pred[i]) - 1, color='gray', linestyle='--', alpha=0.5)
         # else:
         #     for x in range(0, len(y_true_show), len(y_pred[i])):
         #         ax[1].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
         #         ax[0].axvline(x=x, color='gray', linestyle='--', alpha=0.5)
         # print(len(y_pred_show), len(y_true_show))
 
-        ax[0].set_ylim([ymin, ymax])
-        ax[0].plot(range(len(y_pred_show)), y_pred_show, label=f'prediction {i}', color='r')
-        ax[0].plot(range(len(y_true_show)), y_true_show, label=f'true label {i}', color='b')
+    ax[0].set_ylim([ymin, ymax])
+    ax[0].plot(range(len(y_pred_show)), [84.66] * len(y_pred_show), linestyle='--', label='waring levels')
+    ax[0].plot(range(len(y_pred_show)), y_pred_show, label=f'prediction', color='r')
+    ax[0].plot(range(len(y_true_show)), y_true_show, label=f'true label', color='b')
 
-        ax[1].plot(range(len(diff)),
-                   diff,
-                   label=f'diff {i}',
-                   color='y')
-        ax[0].legend()
-        ax[1].legend()
-        plt.draw()
-        plt.pause(0.01)
+    ax[1].plot(range(len(diff)),
+               diff,
+               label=f'diff {i}',
+               color='y')
+    ax[0].legend()
+    ax[1].legend()
+    # plt.pause(0.01)
     fig.savefig(f'{res_file}.svg')
     plt.close()
 
