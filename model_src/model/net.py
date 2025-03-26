@@ -5,7 +5,7 @@ from sklearn.metrics import mean_squared_error
 
 
 class Waterlevel_Model(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, num_layers=2):
+    def __init__(self, input_size, hidden_size, output_size, num_layers=1):
         super(Waterlevel_Model, self).__init__()
         self.conv = nn.Sequential(
             nn.Conv1d(input_size, hidden_size, kernel_size=3),
