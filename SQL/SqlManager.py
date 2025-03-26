@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class MysqlConnecter:
     def __init__(self) -> None:
         self.config = dict()
@@ -24,9 +25,8 @@ class MysqlConnecter:
         for key, value in config["database"].items():
             if isinstance(value, str) and value.startswith("${") and value.endswith("}"):
                 env_var = value[2:-1]
-                config["database"][key] = os.getenv(env_var,"")
+                config["database"][key] = os.getenv(env_var, "")
         self.config = config
-
 
     def get_db_conn(self):
         conn = pymysql.connect(
@@ -39,7 +39,6 @@ class MysqlConnecter:
         )
         self.conn = conn
 
-
     def init_db(self):
         self.create_tables()
 
@@ -49,4 +48,3 @@ class MysqlConnecter:
             sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns})"
             self.cursor.execute(sql)
         self.conn.commit()
-
