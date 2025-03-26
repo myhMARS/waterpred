@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from django.http import Http404
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -9,6 +10,9 @@ from .serializers import InputSerializer, OutputSerializer
 # Create your views here.
 
 class Water_Info(APIView):
+    def get(self, request):
+        raise Http404
+
     def post(self, request):
         # 1. 验证输入数据
         serializer = InputSerializer(data=request.data)
