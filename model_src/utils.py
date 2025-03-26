@@ -37,7 +37,7 @@ def set_logger():
     logger.setLevel(logging.INFO)
 
 
-def show_action_data(model, dataloader, scaler=None, time_length=None, res_file=None):
+def show_action_data(model, dataloader, scaler, res_file=None):
     model.eval()
 
     y_pred, y_true = [], []
@@ -73,11 +73,11 @@ def show_action_data(model, dataloader, scaler=None, time_length=None, res_file=
         diff.append(np.mean(np.abs(y_pred[i] - y_true[i])))
         # ax[0].clear()
         # ax[1].clear()
-        if time_length:
-            if len(y_pred_show) >= time_length:
-                for _ in range(len(y_pred_show) - time_length):
-                    del y_pred_show[0]
-                    del y_true_show[0]
+        # if time_length:
+        #     if len(y_pred_show) >= time_length:
+        #         for _ in range(len(y_pred_show) - time_length):
+        #             del y_pred_show[0]
+        #             del y_true_show[0]
         #     for x in range(i % len(y_pred[i]), len(y_true_show), len(y_pred[i])):
         # ax[1].axvline(x=len(diff) - len(y_pred[i]) - 1, color='gray', linestyle='--', alpha=0.5)
         # ax[0].axvline(x=len(y_pred_show) - len(y_pred[i]) - 1, color='gray', linestyle='--', alpha=0.5)
@@ -99,6 +99,7 @@ def show_action_data(model, dataloader, scaler=None, time_length=None, res_file=
     ax[0].legend()
     ax[1].legend()
     # plt.pause(0.01)
+    plt.show()
     fig.savefig(f'{res_file}.svg')
     plt.close()
 
