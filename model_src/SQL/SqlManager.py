@@ -9,14 +9,14 @@ load_dotenv()
 class MysqlConnecter:
     def __init__(self) -> None:
         self.config = dict()
-        self.conn = pymysql.Connection()
+        self.conn: pymysql.Connection | None = None
 
         self.load_config()
         self.get_db_conn()
 
         self.cursor = self.conn.cursor()
 
-        self.init_db()
+        # self.init_db()  # TIP:尽量使用django更新数据表
 
     def load_config(self):
         with open("./SQL/sqlconfig.yaml", "r", encoding="utf-8") as file:

@@ -11,8 +11,8 @@ df = df.dropna()
 columns = list(df.columns)
 columns_str = ", ".join(columns)
 placeholders = ", ".join(["%s"] * len(columns))
-sql = f"INSERT INTO waterinfo ({columns_str}) VALUES ({placeholders})"
+sql = f"INSERT INTO api_waterinfo ({columns_str}) VALUES ({placeholders})"
 
 data_list = df.values.tolist()
-sqlobject.cursor.executemany(sql,data_list)
+sqlobject.cursor.executemany(sql, data_list)
 sqlobject.conn.commit()

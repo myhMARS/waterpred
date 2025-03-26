@@ -1,0 +1,22 @@
+database:
+  name: waterpred
+  user: ${DB_USER}
+  pwd: ${DB_PWD}
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+
+tables:
+  api_waterinfo:
+    columns:
+      id: "INT PRIMARY KEY AUTO_INCREMENT"
+      times: "DATETIME"
+      temperature: "DOUBLE"
+      humidity: "DOUBLE"
+      winddirection: "VARCHAR(4)"
+      windpower: "DOUBLE"
+      rains: "DOUBLE"
+      rains63000120: "DOUBLE"
+      waterlevels63000120: "DOUBLE"
+      rains63000100: "DOUBLE"
+      waterlevels63000100: "DOUBLE"
+      waterlevels: "DOUBLE"
