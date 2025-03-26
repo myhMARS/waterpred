@@ -3,6 +3,7 @@ import random
 
 import torch
 import numpy as np
+import joblib
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
@@ -106,6 +107,7 @@ if __name__ == '__main__':
     )
     train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False)
     print(len(train_dataset))
+    joblib.dump(scaler, "scaler.pkl")
     test_dataset = data_loader.WaterLevelDataset(
         "dataset.csv",
         train=False,
@@ -127,8 +129,8 @@ if __name__ == '__main__':
     epochs = 200
     logging.info("Starting training for {} epoch(s)".format(epochs))
     train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
-    torch.save(model.state_dict(), 'waterlevel_model.pt')
-    model.load_state_dict(torch.load('waterlevel_model.pt'))
+    torch.save(model.state_dict(), f'waterlevel_model_{input_size}_{hidden_size}_{output_size}.pt')
+    model.load_state_dict(torch.load(f'waterlevel_model_{input_size}_{hidden_size}_{output_size}.pt'))
     model.eval()
     utils.show_action_data(model, train_dataloader, scaler=scaler[1], res_file=f'train_res_{seq_length}_{pred_length}')
     utils.show_action_data(model, test_dataloader, scaler=scaler[1], res_file=f'test_res_{seq_length}_{pred_length}')
