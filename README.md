@@ -80,8 +80,9 @@
 
 - **编程语言**：Python（主要用于 LSTM 训练）、JavaScript（前端可视化）
 - **深度学习框架**：PyTorch
-- **数据库**：PostgreSQL、Redis
-- **后端框架**：FastAPI
+- **数据库**：MySQL、Redis
+- **后端框架**：Django
+- **前端框架**: Vue3
 - **可视化库**：Matplotlib、Plotly
 
 ## 7. 安全性设计
