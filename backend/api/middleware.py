@@ -33,7 +33,10 @@ class ModelMiddleware:
 
         # 1. 加载 PyTorch 模型（仅在 Django 启动时执行一次）
         self.model = Waterlevel_Model(8, 64, 6).to(device)
-        self.model.load_state_dict(torch.load('./api/model/waterlevel_model_8_64_6.pt'))  # 替换为你的模型路径
+        if device == "cuda":
+            self.model.load_state_dict(torch.load('./api/model/waterlevel_model_8_64_6.pt'))
+        else:
+            self.model.load_state_dict(torch.load('./api/model/waterlevel_model_8_64_6.pt', map_location='cpu'))
         self.model.eval()  # 设为评估模式，不会影响权重
         self.scaler = joblib.load('./api/model/scaler.pkl')
         for _ in self.scaler:

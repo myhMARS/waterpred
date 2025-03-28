@@ -2,13 +2,7 @@
   <div class="relative flex flex-col bg-white rounded-xl shadow-md text-gray-700">
     <div class="p-6">
       <h3 class="text-xl font-semibold text-blue-gray-900 mb-4">{{ data.title }}</h3>
-      <apexchart
-        width="100%"
-        height="350"
-        type="area"
-        :options="chartOptions"
-        :series="series"
-      ></apexchart>
+      <apexchart width="100%" height="350" type="area" :options="chartOptions" :series="series"></apexchart>
     </div>
   </div>
 </template>
@@ -48,9 +42,10 @@ export default {
         dataLabels: { enabled: false },
         legend: {
           show: true,
+          showForSingleSeries: true,
           position: 'top',
           horizontalAlign: 'right',
-          fontSize: '12px',
+          fontSize: '10px',
           markers: {
             radius: 12
           }
@@ -135,6 +130,6 @@ export default {
 .relative:hover {
   transform: translateY(-2px);
   transition: transform 0.2s ease;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 </style>
