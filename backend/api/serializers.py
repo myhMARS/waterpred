@@ -1,7 +1,8 @@
 from rest_framework import serializers
+from .models import WaterInfo
 
 
-class InputSerializer(serializers.Serializer):
+class PredictInputSerializer(serializers.Serializer):
     features = serializers.ListField(
         child=serializers.ListField(
             child=serializers.FloatField(),
@@ -21,7 +22,7 @@ class InputSerializer(serializers.Serializer):
     )
 
 
-class OutputSerializer(serializers.Serializer):
+class PredictOutputSerializer(serializers.Serializer):
     prediction = serializers.ListField(
         child=serializers.ListField(
             child=serializers.FloatField(),
@@ -30,3 +31,10 @@ class OutputSerializer(serializers.Serializer):
         ),
         min_length=1  # 至少传入 1 个样本
     )
+
+
+class WaterInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaterInfo
+        fields = ["times", "temperature", "humidity", "rains", "rains63000100",
+                  "waterlevels63000120", "waterlevels63000100", "waterlevels"]
