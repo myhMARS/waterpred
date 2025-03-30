@@ -1,7 +1,7 @@
 import os
 import shutil
 import random
-import logging
+import logging  # TODO：日志输出到文件中
 import hashlib
 from datetime import datetime
 
