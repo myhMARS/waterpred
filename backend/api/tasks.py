@@ -7,6 +7,10 @@ from datetime import datetime
 
 @shared_task
 def get_water_info(url):
+    """水文数据获取任务
+    这里需要根据实际 api 需求进行构造
+    任务计划运行在 Django 后台进行配置
+    """
     try:
         res = requests.get(url)
         res.raise_for_status()
