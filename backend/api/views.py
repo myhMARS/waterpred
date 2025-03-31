@@ -33,5 +33,4 @@ class Water_Info(APIView):
     def get(self, request):
         waterinfo = WaterInfo.objects.order_by("-times")[:18][::-1]
         waterinfo_serializer = WaterInfoSerializer(waterinfo, many=True)
-        print(list(waterinfo_serializer.data))
         return Response(waterinfo_serializer.data, status=status.HTTP_200_OK)

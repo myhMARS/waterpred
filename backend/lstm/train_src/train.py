@@ -1,9 +1,5 @@
-import os
-import shutil
 import random
 import logging  # TODO：日志输出到文件中
-import hashlib
-from datetime import datetime
 
 import joblib
 import numpy as np
@@ -11,15 +7,10 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from celery import shared_task
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import DataLoader
-from django.core.files import File
 
-from api.models import WaterInfo
-from ..models import LSTMModels, ScalerPT
 from lstm.train_src.model_net import net, data_loader
-from ..serializers import WaterInfoSerializer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -114,25 +105,13 @@ def evaluate(model, loss_fn, dataloader, metrics):
     return metrics_mean
 
 
-def get_file_md5(filepath):
-    """计算文件的MD5哈希值"""
-    hash_md5 = hashlib.md5()
-    with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
 
-
-@shared_task
-def train_lstm_model():
-    time_stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+def train_lstm_model(data, input_size, hidden_size, output_size, time_stamp):
     seq_length = 12
-    pred_length = 6
+    pred_length = output_size
     scaler = (MinMaxScaler(), MinMaxScaler())
+    df = pd.DataFrame(data)
     try:
-        queryset = WaterInfo.objects.order_by("-times")
-        data = WaterInfoSerializer(queryset, many=True).data
-        df = pd.DataFrame(data)
         train_dataset = data_loader.WaterLevelDataset(
             df=df,
             train=True,
@@ -142,7 +121,6 @@ def train_lstm_model():
         )
         train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False)
 
-        joblib.dump(scaler, f"temp/scaler_{time_stamp}.pkl")
 
         test_dataset = data_loader.WaterLevelDataset(
             df=df,
@@ -153,9 +131,6 @@ def train_lstm_model():
         )
         test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 
-        input_size = 8
-        hidden_size = 64
-        output_size = pred_length
         model = net.Waterlevel_Model(input_size, hidden_size, output_size, 1).to(device)
         optimizer = optim.Adam(model.parameters(), lr=0.0001)
         loss_fn = nn.MSELoss()
@@ -163,27 +138,10 @@ def train_lstm_model():
         epochs = 200
         rmse = train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
         if rmse:
+            joblib.dump(scaler, f"temp/scaler_{time_stamp}.pkl")
             lstm_filename = f'waterlevel_model_{input_size}_{hidden_size}_{output_size}_{time_stamp}.pt'
             torch.save(model.state_dict(),
                        f'temp/{lstm_filename}')
-            md5 = get_file_md5(f'temp/{lstm_filename}')
-            with open(f'temp/{lstm_filename}', 'rb') as f:
-                lstm_instance = LSTMModels.objects.create(
-                    name=lstm_filename,
-                    file=File(f, name=lstm_filename),
-                    rmse=rmse,
-                    md5=md5
-                )
-            with open(f'temp/scaler_{time_stamp}.pkl', 'rb') as f:
-                ScalerPT.objects.create(
-                    name=f'scaler_{time_stamp}',
-                    file=File(f, name=f'scaler_{time_stamp}.pkl'),
-                    lstm_model=lstm_instance
-                )
     except Exception as e:
         logging.error("- Exception : {}".format(e))
-    finally:
-        temp_dir = "temp/"
-        if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
-            os.makedirs(temp_dir)
+        
