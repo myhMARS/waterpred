@@ -1,8 +1,9 @@
-from .models import WaterInfo
+from datetime import datetime
 
 import requests
 from celery import shared_task
-from datetime import datetime
+
+from .models import WaterInfo
 
 
 @shared_task

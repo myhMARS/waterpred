@@ -1,14 +1,17 @@
-import os
 import hashlib
 import logging
+import os
 import shutil
 from datetime import datetime
+
 from celery import shared_task
 from django.core.files import File
-from .train_src.train import train_lstm_model
+
 from api.models import WaterInfo
-from .serializers import WaterInfoSerializer
 from .models import LSTMModels, ScalerPT
+from .serializers import WaterInfoSerializer
+from .train_src.train import train_lstm_model
+
 
 def get_file_md5(filepath):
     """计算文件的MD5哈希值"""

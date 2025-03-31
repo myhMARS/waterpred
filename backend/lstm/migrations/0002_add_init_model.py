@@ -1,6 +1,8 @@
 import hashlib
-from django.db import migrations
+
 from django.core.files import File
+from django.db import migrations
+
 
 def get_file_md5(filepath):
     """计算文件的MD5哈希值"""
@@ -14,7 +16,7 @@ def get_file_md5(filepath):
 def add_initial_data(apps, schema_editor):
     LSTM_Model = apps.get_model('lstm', 'LSTMModels')
     Scaler_Model = apps.get_model('lstm', 'ScalerPT')
-    
+
     model_path = 'media/init/waterlevel_model_8_64_6_init.pt'
     md5 = get_file_md5(model_path)
     scaler_path = 'media/init/scaler_init.pkl'
@@ -34,9 +36,7 @@ def add_initial_data(apps, schema_editor):
         )
 
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('lstm', '0001_initial'),
     ]
