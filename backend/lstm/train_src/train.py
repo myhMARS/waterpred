@@ -142,6 +142,8 @@ def train_lstm_model(data, input_size, hidden_size, output_size, time_stamp):
             lstm_filename = f'waterlevel_model_{input_size}_{hidden_size}_{output_size}_{time_stamp}.pt'
             torch.save(model.state_dict(),
                        f'temp/{lstm_filename}')
+            return rmse
     except Exception as e:
         logging.error("- Exception : {}".format(e))
+        return 0
         

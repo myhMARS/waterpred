@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 import joblib
 from lstm.models import LSTMModels, ScalerPT
 from lstm.train_src.model_net.net import Waterlevel_Model
