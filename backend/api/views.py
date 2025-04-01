@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from django.core.cache import cache
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
@@ -17,14 +18,19 @@ class Water_Predict(APIView):
         serializer = PredictInputSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         data = np.array(serializer.validated_data["features"])
-        data = request.scaler[0].transform(data)
+        scaler = cache.get('waterlevel_scaler')
+        model = cache.get('waterlevel_model')
+        device = cache.get('device')
 
-        input_data = torch.tensor(data, dtype=torch.float32).to(request.device)
+        data = scaler[0].transform(data)
 
-        output = request.model(input_data.unsqueeze(0))
+        input_data = torch.tensor(data, dtype=torch.float32).to(device)
+
+        output = model(input_data.unsqueeze(0))
         output = output.data.cpu().numpy()
-        output = request.scaler[1].inverse_transform(np.array(output).reshape(-1, output.shape[-1]))
+        output = scaler[1].inverse_transform(np.array(output).reshape(-1, output.shape[-1]))
 
         output_serializer = PredictOutputSerializer({'prediction': output.tolist()})
         return Response(output_serializer.data, status=status.HTTP_200_OK)
