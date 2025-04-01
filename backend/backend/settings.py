@@ -85,7 +85,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 #     }
 # }
 load_dotenv()
-
+# 数据库配置
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -95,6 +95,14 @@ DATABASES = {
         "PASSWORD": os.getenv("DB_PWD"),
     }
 }
+# Cache配置/使用redis
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/3",
+    }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
