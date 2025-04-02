@@ -30,7 +30,7 @@ export default {
         colors: ["#4CAF50", "#2196F3"], // 绿色和蓝色系列
         chart: {
           height: 350,
-          type: "Line",
+          type: "area",
           zoom: { enabled: false },
           toolbar: { show: false },
           animations: {
@@ -113,7 +113,7 @@ export default {
             shadeIntensity: 1,
             opacityFrom: 0.7,
             opacityTo: 0.3,
-            stops: [0, 0, 30]
+            stops: [0, 0, 100]
           },
         },
       };
