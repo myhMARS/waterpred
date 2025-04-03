@@ -11,10 +11,12 @@ import Chart from "@/components/Chart.vue";
 import Header from "@/components/Header.vue";
 import axios from "axios";
 
-const current_waterlevel = ["水位", "#4CAF50"]
-const flood_limit_water_level = ["汛限水位", "#FA0303F9"]
-const guaranteed_water_level = ["保证水位", "#FA0303F9"]
-const warning_water_level = ["警戒水位", "#FAD300AF"]
+const WATER_LEVEL_TYPES = {
+  CURRENT: ["水位", "#4CAF50"],
+  FLOOD_LIMIT: ["汛限水位", "#FA0303F9"],
+  GUARANTEED: ["保证水位", "#FA0303F9"],
+  WARNING: ["警戒水位", "#FAD300AF"]
+}
 
 class CustomChart {
   constructor(title, categories, ylabel, info) {
@@ -65,12 +67,13 @@ export default {
               waterlevels63000100.push(item.waterlevels63000100);
             });
             console.log(this.charts)
+
             // 更新图表数据
             const chart1 = new CustomChart(
                 "里畈东坑溪水位",
                 times,
                 'mm',
-                [{type: current_waterlevel, data: waterlevels63000120}]
+                [{type: WATER_LEVEL_TYPES.CURRENT, data: waterlevels63000120}]
             );
             // const chart2 = new chart("里畈水库水位",times,'mm',["水位"],[waterlevels], ["#4CAF50"])
             const chart2 = new CustomChart(
@@ -78,8 +81,8 @@ export default {
                 times,
                 'mm',
                 [
-                  {type: current_waterlevel, data: waterlevels63000100},
-                  {type: flood_limit_water_level, data: new Array(times.length).fill(234.73)}
+                  {type: WATER_LEVEL_TYPES.CURRENT, data: waterlevels63000100},
+                  {type: WATER_LEVEL_TYPES.FLOOD_LIMIT, data: new Array(times.length).fill(234.73)}
                 ]
             );
             const chart3 = new CustomChart(
@@ -87,12 +90,13 @@ export default {
                 times,
                 'mm',
                 [
-                  {type: current_waterlevel, data: waterlevels},
-                  {type: guaranteed_water_level, data: new Array(times.length).fill(85.66)},
-                  {type: warning_water_level, data: new Array(times.length).fill(84.66)}
+                  {type: WATER_LEVEL_TYPES.CURRENT, data: waterlevels},
+                  {type: WATER_LEVEL_TYPES.GUARANTEED, data: new Array(times.length).fill(85.66)},
+                  {type: WATER_LEVEL_TYPES.WARNING, data: new Array(times.length).fill(84.66)}
                 ]
             )
             this.charts.push(chart1, chart2, chart3)
+
           })
           .catch(error => {
             console.error('请求失败:', error);
