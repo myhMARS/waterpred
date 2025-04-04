@@ -135,13 +135,13 @@ msgstr "令牌无效或已过期"
 
 #: serializers.py:35
 msgid "No active account found with the given credentials"
-msgstr "找不到指定凭据对应的有效用户"
+msgstr "用户名或密码错误"
 
 #: serializers.py:108
 #, fuzzy
 #| msgid "No active account found with the given credentials"
 msgid "No active account found for the given token."
-msgstr "找不到指定凭据对应的有效用户"
+msgstr "用户名或密码错误"
 
 #: settings.py:74
 msgid ""
