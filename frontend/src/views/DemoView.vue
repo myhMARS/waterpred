@@ -75,7 +75,7 @@ export default {
                 'mm',
                 [{type: WATER_LEVEL_TYPES.CURRENT, data: waterlevels63000120}]
             );
-            // const chart2 = new chart("里畈水库水位",times,'mm',["水位"],[waterlevels], ["#4CAF50"])
+
             const chart2 = new CustomChart(
                 "里畈水库水位",
                 times,
