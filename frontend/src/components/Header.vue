@@ -18,8 +18,39 @@
         <a v-for="item in navigation" :key="item.name" :href="item.href"
            class="text-sm/6 font-semibold text-gray-900">{{ item.name }}</a>
       </div>
+      <Popover v-if="authStore.isLogin" class="hidden lg:flex lg:flex-1 lg:justify-end">
+        <!-- 父容器添加 relative 确保定位基准 -->
+        <div class="relative">
+          <!-- 显示用户名，点击打开下拉菜单 -->
+          <PopoverButton class="text-left inline-flex focus:outline-none">
+            <span class="text-sm font-semibold text-gray-900 block">
+              {{ username }}
+            </span>
+            <ChevronDownIcon class="size-5" aria-hidden="true"/>
 
-      <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+          </PopoverButton>
+
+          <!-- 下拉菜单（PopoverPanel） -->
+          <transition
+              enter-active-class="transition ease-out duration-200"
+              enter-from-class="opacity-0 translate-y-1"
+              enter-to-class="opacity-100 translate-y-0"
+              leave-active-class="transition ease-in duration-150"
+              leave-from-class="opacity-100 translate-y-0"
+              leave-to-class="opacity-0 translate-y-1">
+            <!-- 调整定位和宽度 -->
+            <PopoverPanel class="absolute left-0 z-10 mt-2 w-30 min-w-full origin-top-left">
+              <div class="w-full rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5 overflow-hidden">
+                <!-- 菜单项 -->
+                <div class="relative p-4 hover:bg-gray-50 cursor-pointer">
+                  <a @click.prevent="logout" class="font-semibold text-sm text-gray-900 block">注销登录</a>
+                </div>
+              </div>
+            </PopoverPanel>
+          </transition>
+        </div>
+      </Popover>
+      <div v-else class="hidden lg:flex lg:flex-1 lg:justify-end">
         <a href="/login" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
       </div>
 
@@ -46,8 +77,18 @@
                   item.name
                 }}</a>
             </div>
-            <div class="py-6">
-              <a href="#"
+            <div v-if="authStore.isLogin">
+              <a
+                 class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
+                {{ username }}
+              </a>
+              <a @click.prevent="logout"
+                 class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
+                退出登录
+              </a>
+            </div>
+            <div v-else class="py-6">
+              <a href="/login"
                  class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Log
                 in</a>
             </div>
@@ -58,18 +99,76 @@
   </header>
 </template>
 
-<script setup>
+<script>
 import {ref} from 'vue'
-import {Dialog, DialogPanel} from '@headlessui/vue'
+import {Dialog, DialogPanel, Popover, PopoverButton, PopoverPanel} from '@headlessui/vue'
 import {Bars3Icon, XMarkIcon} from '@heroicons/vue/24/outline'
+import {ChevronDownIcon} from '@heroicons/vue/20/solid'
+import {useAuthStore} from "@/stores/authStatus.js"
+import axios from "axios";
 
-const navigation = [
-  {name: '首页', href: '/'},
-  {name: 'Demo', href: '/demo'},
-  {name: '功能', href: '#'},
-  {name: '应用前景', href: '#'},
-  {name: '团队', href: '/team'},
-]
-
-const mobileMenuOpen = ref(false)
+export default {
+  name: 'Header',
+  methods: {
+    useAuthStore,
+    logout() {
+      localStorage.clear()
+      this.authStore.setLoginStatus(false)
+    }
+  },
+  components: {
+    PopoverPanel,
+    Popover,
+    PopoverButton,
+    Dialog,
+    DialogPanel,
+    Bars3Icon,
+    XMarkIcon,
+    ChevronDownIcon
+  },
+  data() {
+    return {
+      navigation: [
+        {name: '首页', href: '/'},
+        {name: 'Demo', href: '/demo'},
+        {name: '功能', href: '#'},
+        {name: '应用前景', href: '#'},
+        {name: '团队', href: '/team'},
+      ],
+      mobileMenuOpen: ref(false),
+      username: ''
+    }
+  },
+  computed: {
+    // 让模板可以直接使用 authStore 的数据
+    authStore() {
+      return useAuthStore()
+    },
+  },
+  created() {
+    this.username = localStorage.getItem('username') || ''
+    const currentTime = Date.now()
+    const expiredTime = localStorage.getItem("expiredTime")
+    const refreshToken = localStorage.getItem("refreshToken")
+    if (expiredTime > currentTime) {
+      this.authStore.setLoginStatus(true)
+    }
+    else if (refreshToken){
+      console.log('refreshtoken')
+      axios
+          .post("auth/jwt/refresh/", {"refresh": refreshToken})
+          .then(response => {
+            const token = response.data.access
+            localStorage.setItem("token", token)
+            localStorage.setItem("expiredTime", Date.now() + 15 * 60 * 1000)
+          })
+          .catch(error=>{
+            console.log(error)
+            this.authStore.setLoginStatus(false)
+            localStorage.clear()
+          })
+    }
+  },
+}
 </script>
+
