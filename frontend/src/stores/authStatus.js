@@ -10,6 +10,9 @@ export const useAuthStore = defineStore('auth', {
     },
     setLoginStatus(status) {
       this.isLogin = status
+      if (!status) {
+        localStorage.clear()
+      }
     }
   }
 })

@@ -53,6 +53,7 @@
 import Header from "@/components/Header.vue";
 import showToast from "@/utils/message.js";
 import axios from "axios";
+import {useAuthStore} from "@/stores/authStatus.js";
 
 export default {
   name: 'login',
@@ -71,9 +72,11 @@ export default {
         'username': username,
         'password': password
       }
+      const authStore = useAuthStore()
       axios
           .post("auth/jwt/create/", fromData)
           .then(response => {
+            authStore.setLoginStatus(true)
             const token = response.data.access
             const refreshToken = response.data.refresh
             const username = this.username
@@ -83,9 +86,12 @@ export default {
             localStorage.setItem("username", username)
             localStorage.setItem("expiredTime", Date.now() + 15 * 60 * 1000)
 
+            const redirectAfterLogin = this.$route.query.jump
+            const redirectUrl= redirectAfterLogin ? redirectAfterLogin:'/'
+
             showToast("success", "登录成功", () => {
               this.$router.push({
-                name: 'home'
+                path: redirectUrl
               })
             })
           })

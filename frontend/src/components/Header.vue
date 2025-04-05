@@ -112,7 +112,6 @@ export default {
   methods: {
     useAuthStore,
     logout() {
-      localStorage.clear()
       this.authStore.setLoginStatus(false)
     }
   },
@@ -165,7 +164,6 @@ export default {
           .catch(error=>{
             console.log(error)
             this.authStore.setLoginStatus(false)
-            localStorage.clear()
           })
     }
   },

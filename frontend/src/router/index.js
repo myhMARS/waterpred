@@ -4,7 +4,7 @@ import TeamView from "@/views/TeamView.vue";
 import DemoView from "@/views/DemoView.vue";
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
-
+import {useAuthStore} from "@/stores/authStatus.js";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +23,9 @@ const router = createRouter({
       path: '/demo',
       name: 'demo',
       component: DemoView,
+      meta: {
+        requireLogin: true
+      }
     },
     {
       path: '/login',
@@ -35,6 +38,21 @@ const router = createRouter({
       component: RegisterView
     }
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  console.log(authStore.isLogin)
+  authStore.initializeStore()
+  if (authStore.isLogin && (to.name === 'login' || to.name === 'register')){
+    next({name: 'home'})
+  }
+  else if (to.matched.some(record => record.meta.requireLogin) && !authStore.isLogin) {
+    next({name: 'login', query: {jump: to.path}})
+  }
+  else {
+    next()
+  }
 })
 
 export default router
