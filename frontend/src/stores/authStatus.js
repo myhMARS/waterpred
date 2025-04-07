@@ -8,10 +8,11 @@ export const useAuthStore = defineStore('auth', {
     initializeStore() {
       this.isLogin = !!localStorage.getItem('token');
     },
-    setLoginStatus(status) {
+    setLoginStatus(status,router) {
       this.isLogin = status
       if (!status) {
         localStorage.clear()
+        router.push({ name: 'home' })
       }
     }
   }
