@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import WaterInfo
-from .serializers import PredictInputSerializer, PredictOutputSerializer, WaterInfoSerializer
+from .serializers import PredictInputSerializer, PredictOutputSerializer, WaterInfoDataSerializer, WaterInfoTimeSerializer
 
 
 def predict(data):
@@ -48,14 +48,22 @@ class Water_Info(APIView):
     def get(self, request):
         try:
             waterinfo = WaterInfo.objects.order_by("-times")[:18][::-1]
-            waterinfo_serializer = WaterInfoSerializer(waterinfo, many=True)
-            '''
-            ["temperature", "humidity", "rains", "rains63000100",
-            "windpower", "waterlevels63000100", "waterlevels63000120", "waterlevels"]
-            '''
-            data = pd.DataFrame(waterinfo_serializer.data)
-            data = np.array(data[-12:])
-            output = predict(data)
-            return Response(waterinfo_serializer.data, status=status.HTTP_200_OK)
+            waterinfo_data = WaterInfoDataSerializer(waterinfo, many=True)
+
+            waterinfo_time = WaterInfoTimeSerializer(waterinfo, many=True)
+            times = []
+            for _ in waterinfo_time.data:
+                times.extend(_.values())
+            response_data = {
+                "times": times,
+                "data": waterinfo_data.data,
+            }
+            if len(waterinfo_data.data) >= 12:
+                data = pd.DataFrame(waterinfo_data.data)
+                data = np.array(data[-12:])
+                output = predict(data).tolist()[0]
+                response_data['pred'] = output
+
+            return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
