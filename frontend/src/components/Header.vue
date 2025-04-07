@@ -148,7 +148,6 @@ export default {
       this.authStore.setLoginStatus(true)
     }
     else if (refreshToken) {
-      console.log('refreshtoken')
       axios
         .post("auth/jwt/refresh/", { "refresh": refreshToken })
         .then(response => {
