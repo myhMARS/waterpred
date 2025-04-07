@@ -37,5 +37,7 @@ class PredictOutputSerializer(serializers.Serializer):
 class WaterInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = WaterInfo
-        fields = ["times", "temperature", "humidity", "rains", "rains63000100",
-                  "waterlevels63000120", "waterlevels63000100", "waterlevels"]
+        fields = ["temperature", "humidity", "rains", "rains63000100",
+                  "windpower", "waterlevels63000100", "waterlevels63000120", "waterlevels"]
+
+
