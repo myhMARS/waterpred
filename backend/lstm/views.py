@@ -44,11 +44,13 @@ class ChangeModel(APIView):
                 },
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            cache_model.to(cache.get('device'))
             cache_model.eval()
             cache.set('waterlevel_model', cache_model, timeout=None)
             cache.set('model_md5', model.md5, timeout=None)
-            cache.set('waterlevel_scaler', joblib.load(scaler.file), timeout=None)
+            scaler = joblib.load(scaler.file)
+            for _ in scaler:
+                _.feature_names_in_ = None
+            cache.set('waterlevel_scaler', scaler, timeout=None)
             return Response({
                 "md5": cache.get('model_md5'),
             },
@@ -60,6 +62,13 @@ class ChangeModel(APIView):
                 'detail': '未找到指定MD5值的资源'
             },
                 status=status.HTTP_404_NOT_FOUND
+            )
+
+        except Exception as e:
+            return Response({
+                'detail': f'服务器错误{e}',
+            },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 
