@@ -24,7 +24,7 @@ def add_initial_data(apps, schema_editor):
         lstm_instance = LSTM_Model.objects.create(
             name='waterlevel_model_8_64_6_init',
             file=File(f, name='waterlevel_model_8_64_6_init.pt'),
-            rmse=0.014,
+            rmse=0.015890525424569143,
             md5=md5
         )
 
