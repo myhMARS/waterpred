@@ -13,3 +13,14 @@ class WaterInfo(models.Model):
     rains63000100 = models.FloatField(verbose_name="库区降水")
     waterlevels63000100 = models.FloatField(verbose_name="库区水位")
     waterlevels = models.FloatField(verbose_name="桥东村水位")
+
+
+class WaterPred(models.Model):
+    times = models.DateTimeField(verbose_name='预测起始时间')
+    waterlevel1 = models.FloatField(verbose_name='time+1')
+    waterlevel2 = models.FloatField(verbose_name='time+2')
+    waterlevel3 = models.FloatField(verbose_name='time+3')
+    waterlevel4 = models.FloatField(verbose_name='time+4')
+    waterlevel5 = models.FloatField(verbose_name='time+5')
+    waterlevel6 = models.FloatField(verbose_name='time+6')
+
