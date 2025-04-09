@@ -1,31 +1,13 @@
 import numpy as np
-import pandas as pd
-import torch
-from django.core.cache import cache
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import WaterInfo
-from .serializers import PredictInputSerializer, PredictOutputSerializer, WaterInfoDataSerializer, WaterInfoTimeSerializer
-
-
-def predict(data):
-    scaler = cache.get('waterlevel_scaler')
-    model = cache.get('waterlevel_model')
-    model.lstm.flatten_parameters()
-
-    device = cache.get('device')
-
-    data = scaler[0].transform(data)
-
-    input_data = torch.tensor(data, dtype=torch.float32).to(device)
-
-    output = model(input_data.unsqueeze(0))
-    output = output.data.cpu().numpy()
-    output = scaler[1].inverse_transform(np.array(output).reshape(-1, output.shape[-1]))
-    return output
+from .models import WaterInfo, WaterPred
+from .serializers import PredictInputSerializer, PredictOutputSerializer, WaterInfoDataSerializer, \
+    WaterInfoTimeSerializer, WaterPredDataSerializer
+from .utils import predict
 
 
 class Water_Predict(APIView):
@@ -58,11 +40,11 @@ class Water_Info(APIView):
                 "times": times,
                 "data": waterinfo_data.data,
             }
-            if len(waterinfo_data.data) >= 12:
-                data = pd.DataFrame(waterinfo_data.data)
-                data = np.array(data[-12:])
-                output = predict(data).tolist()[0]
-                response_data['pred'] = output
+
+            waterpred = WaterPred.objects.order_by("-times").first()
+            waterpred_data = WaterPredDataSerializer(waterpred)
+            if None not in list(waterpred_data.data.values()):
+                response_data["pred"] = list(waterpred_data.data.values())
 
             return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
