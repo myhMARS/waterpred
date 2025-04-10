@@ -1,9 +1,8 @@
 from django.contrib import admin
 
-from .models import WaterInfo, WaterPred
+from .models import WaterInfo, WaterPred, StationInfo, WarningNotice
 
 
-# Register your models here.
 @admin.register(WaterInfo)
 class WaterInfoAdmin(admin.ModelAdmin):
     list_display = (
@@ -21,3 +20,17 @@ class WaterPredAdmin(admin.ModelAdmin):
         "waterlevel4", "waterlevel5", "waterlevel6"
     )
     search_fields = ('times',)
+
+
+@admin.register(StationInfo)
+class StationInfoAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "city", "county", "flood_limit", "guaranteed", "warning")
+    list_filter = ("city", "county")
+    search_fields = ("id", "name", "city", "county")
+
+
+@admin.register(WarningNotice)
+class WarningNoticeAdmin(admin.ModelAdmin):
+    list_display = ("station", "noticetime", "isCanceled", "canceltime")
+    list_filter = ("station__name", "isCanceled")
+    search_fields = ("station__name", 'station__id')
