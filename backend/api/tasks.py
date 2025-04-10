@@ -6,7 +6,7 @@ import requests
 from celery import shared_task
 from django.utils import timezone
 
-from .models import WaterInfo, WaterPred
+from .models import WaterInfo, WaterPred, StationInfo
 from .serializers import WaterInfoDataSerializer
 from .utils import predict
 
@@ -57,6 +57,7 @@ def get_water_info(url):
                 fields = {f"waterlevel{i + 1}": level for i, level in enumerate(output)}
                 WaterPred.objects.create(
                     times=times,
+                    station=StationInfo.objects.filter(id="63000200").first(),
                     **fields,
                 )
             return 1
