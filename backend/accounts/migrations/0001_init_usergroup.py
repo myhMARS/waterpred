@@ -10,7 +10,9 @@ def create_groups(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    dependencies = []
+    dependencies = [
+        ('auth',),
+    ]
 
     operations = [
         migrations.RunPython(create_groups),
