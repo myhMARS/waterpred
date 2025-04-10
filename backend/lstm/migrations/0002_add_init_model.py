@@ -25,7 +25,8 @@ def add_initial_data(apps, schema_editor):
             name='waterlevel_model_8_64_6_init',
             file=File(f, name='waterlevel_model_8_64_6_init.pt'),
             rmse=0.015890525424569143,
-            md5=md5
+            md5=md5,
+            is_activate=True,
         )
 
     with open(scaler_path, 'rb') as f:
