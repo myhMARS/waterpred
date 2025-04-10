@@ -11,7 +11,7 @@ def create_groups(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('auth',),
+        ('auth', '__latest__'),
     ]
 
     operations = [
