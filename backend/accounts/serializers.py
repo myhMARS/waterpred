@@ -1,6 +1,6 @@
-from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
 
 User = get_user_model()
 
@@ -11,7 +11,10 @@ class CustomUserCreateSerializer(BaseUserCreateSerializer):
         fields = ('username', 'email', 'password')  # 不包含 id 字段
 
     def create(self, validated_data):
+        validated_data.pop('groups', None)
         user = super().create(validated_data)
+        default_group, created = Group.objects.get_or_create(name='普通用户组')
+        user.groups.add(default_group)
         return user
 
     def to_representation(self, instance):

@@ -19,10 +19,11 @@ const WATER_LEVEL_TYPES = {
 }
 
 class CustomChart {
-  constructor(title, categories, ylabel, info) {
+  constructor(title, categories, ylabel, info, predline) {
     this.title = title;
     this.categories = categories;
     this.ylabel = ylabel;
+    this.predline = predline
     this.Data = [];
 
     for (let i = 0; i < info.length; i++) {
@@ -54,19 +55,22 @@ export default {
       axios.get('/api/waterinfo/')
           .then(response => {
             this.charts = []
-            const data = response.data;
+            const data = response.data.data
+            const time = response.data.times
             const times = [];
             const waterlevels = [];       // 桥东村水位
             const waterlevels63000100 = []; // 里畈水库当前水位
             const waterlevels63000120 = []; // 里畈东坑溪水位
+            const pred = response.data.pred
 
+            time.forEach(item => {
+              times.push(new Date(item).toLocaleString('zh-CN'));
+            })
             data.forEach(item => {
-              times.push(new Date(item.times).toLocaleString('zh-CN'));
               waterlevels.push(item.waterlevels);
               waterlevels63000120.push(item.waterlevels63000120);
               waterlevels63000100.push(item.waterlevels63000100);
             });
-            console.log(this.charts)
 
             // 更新图表数据
             const chart1 = new CustomChart(
@@ -85,15 +89,30 @@ export default {
                   {type: WATER_LEVEL_TYPES.FLOOD_LIMIT, data: new Array(times.length).fill(234.73)}
                 ]
             );
+
+            let waterlevels_res = [...waterlevels]
+            let predline = null 
+            if (pred) {
+              const baseTime = new Date(times[times.length - 1])
+              for (let i = 1; i <= 6; i++) {
+                const futureTime = new Date(baseTime.getTime() + i * 60 * 60 * 1000);
+                times.push(futureTime.toLocaleString('zh-CN'));
+              }
+              waterlevels_res = [...waterlevels,...pred]
+              predline = times.at(-6)
+            }
+
+
             const chart3 = new CustomChart(
                 "桥东村水位",
                 times,
                 'mm',
                 [
-                  {type: WATER_LEVEL_TYPES.CURRENT, data: waterlevels},
+                  {type: WATER_LEVEL_TYPES.CURRENT, data: waterlevels_res},
                   {type: WATER_LEVEL_TYPES.GUARANTEED, data: new Array(times.length).fill(85.66)},
                   {type: WATER_LEVEL_TYPES.WARNING, data: new Array(times.length).fill(84.66)}
-                ]
+                ],
+                predline
             )
             this.charts.push(chart1, chart2, chart3)
 

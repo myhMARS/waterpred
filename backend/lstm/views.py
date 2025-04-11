@@ -9,6 +9,7 @@ import joblib
 from .models import LSTMModels, ScalerPT
 from .serializers import ModelChangeSerializer, ModelListSerializer
 from .tasks import start_train
+from accounts import permissions
 
 
 class TrainAPI(APIView):
@@ -19,6 +20,8 @@ class TrainAPI(APIView):
 
 
 class ModelList(APIView):
+    # permission_classes = [permissions.IsInAdminGroup]
+
     def get(self, request):
         models = LSTMModels.objects.all()
         serializer = ModelListSerializer(models, many=True)
@@ -26,6 +29,8 @@ class ModelList(APIView):
 
 
 class ChangeModel(APIView):
+    # permission_classes = [permissions.IsInAdminGroup]
+
     def post(self, request):
         md5serializer = ModelChangeSerializer(data=request.data)
         if not md5serializer.is_valid():
@@ -44,11 +49,18 @@ class ChangeModel(APIView):
                 },
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            cache_model.to(cache.get('device'))
             cache_model.eval()
+
+            disabled_model_md5 = cache.get('model_md5')
+            LSTMModels.objects.filter(md5=disabled_model_md5).update(is_activate=False)
+            LSTMModels.objects.filter(md5=md5serializer.validated_data["md5"]).update(is_activate=True)
+
             cache.set('waterlevel_model', cache_model, timeout=None)
             cache.set('model_md5', model.md5, timeout=None)
-            cache.set('waterlevel_scaler', joblib.load(scaler.file), timeout=None)
+            scaler = joblib.load(scaler.file)
+            for _ in scaler:
+                _.feature_names_in_ = None
+            cache.set('waterlevel_scaler', scaler, timeout=None)
             return Response({
                 "md5": cache.get('model_md5'),
             },
@@ -62,8 +74,17 @@ class ChangeModel(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+        except Exception as e:
+            return Response({
+                'detail': f'服务器错误{e}',
+            },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class ModelInfo(APIView):
+    # permission_classes = [permissions.IsInAdminGroup]
+
     def get(self, request):
         md5 = cache.get("model_md5")
         return Response({

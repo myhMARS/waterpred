@@ -1,9 +1,14 @@
 from datetime import datetime
 
+import numpy as np
+import pandas as pd
 import requests
 from celery import shared_task
+from django.utils import timezone
 
-from .models import WaterInfo
+from .models import WaterInfo, WaterPred, StationInfo
+from .serializers import WaterInfoDataSerializer
+from .utils import predict
 
 
 @shared_task
@@ -17,9 +22,9 @@ def get_water_info(url):
         res.raise_for_status()
         data = res.json()
         if not data:
-            return 0
+            raise Exception('api未获取到数据')
         else:
-            times = datetime.strptime(data[0], "%Y-%m-%d %H:%M:%S")
+            times = timezone.make_aware(datetime.strptime(data[0], "%Y-%m-%d %H:%M:%S"))
             temperature = float(data[1])
             humidity = float(data[2])
             winddirection = data[3]
@@ -42,6 +47,26 @@ def get_water_info(url):
                 waterlevels63000100=waterlevels63000100,
                 waterlevels=waterlevels,
             )
+
+            waterinfo = WaterInfo.objects.order_by("-times")[:18][::-1]
+            waterinfo_data = WaterInfoDataSerializer(waterinfo, many=True)
+            if len(waterinfo_data.data) >= 12:
+                data = np.array(pd.DataFrame(waterinfo_data.data).tail(12))
+                output = predict(data).tolist()[0]
+
+                fields = {f"waterlevel{i + 1}": level for i, level in enumerate(output)}
+                WaterPred.objects.create(
+                    times=times,
+                    station=StationInfo.objects.filter(id="63000200").first(),
+                    **fields,
+                )
             return 1
-    except:
+
+    except Exception as e:
+        print(e)
         return 0
+
+
+@shared_task
+def send_warning_email():
+    pass

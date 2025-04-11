@@ -15,8 +15,8 @@ class ModelMiddleware:
         self.load_model()
 
     def load_model(self):
-        """从数据库加载最新的模型和 scaler，并存入缓存"""
-        model_pt = LSTMModels.objects.order_by('rmse').first()
+        """从数据库加载模型和 scaler，并存入缓存"""
+        model_pt = LSTMModels.objects.filter(is_activate=True).first()
         scaler_path = ScalerPT.objects.filter(lstm_model=model_pt.md5).first()
 
         model = Waterlevel_Model(8, 64, 6).to(device)

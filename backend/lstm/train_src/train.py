@@ -105,7 +105,6 @@ def evaluate(model, loss_fn, dataloader, metrics):
     return metrics_mean
 
 
-
 def train_lstm_model(data, input_size, hidden_size, output_size, time_stamp):
     seq_length = 12
     pred_length = output_size
@@ -120,7 +119,6 @@ def train_lstm_model(data, input_size, hidden_size, output_size, time_stamp):
             pred_length=pred_length,
         )
         train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False)
-
 
         test_dataset = data_loader.WaterLevelDataset(
             df=df,
@@ -146,4 +144,3 @@ def train_lstm_model(data, input_size, hidden_size, output_size, time_stamp):
     except Exception as e:
         logging.error("- Exception : {}".format(e))
         return 0
-        

@@ -26,20 +26,20 @@ export default {
   },
   computed: {
     chartOptions() {
-      return {
-        colors: ["#4CAF50", "#2196F3"], // 绿色和蓝色系列
+      const options = {
+        colors: ["#4CAF50", "#2196F3"],
         chart: {
           height: 350,
           type: "area",
-          zoom: { enabled: false },
-          toolbar: { show: false },
+          zoom: {enabled: false},
+          toolbar: {show: false},
           animations: {
             enabled: true,
             easing: 'easeinout',
             speed: 800
           }
         },
-        dataLabels: { enabled: false },
+        dataLabels: {enabled: false},
         legend: {
           show: true,
           showForSingleSeries: true,
@@ -59,7 +59,7 @@ export default {
           show: true,
           borderColor: "#EEEEEE",
           strokeDashArray: 5,
-          padding: { top: 20, right: 20 },
+          padding: {top: 20, right: 20},
           yaxis: {
             lines: {
               show: true
@@ -116,12 +116,33 @@ export default {
             stops: [0, 0, 100]
           },
         },
+        annotations: {
+          xaxis: []
+        }
       };
+
+      if (this.data.predline) {
+        options.annotations.xaxis.push({
+          x: this.data.predline,
+          borderColor: 'rgba(128, 128, 128, 0.5)',
+          label: {
+            orientation: 'horizontal',
+            style: {
+              color: '#fff',
+              background: 'rgba(128, 128, 128, 0.5)',
+            },
+            text: '预测起点',
+          },
+        });
+      }
+
+      return options;
     },
     series() {
-      return this.data.Data || []
+      return this.data.Data || [];
     }
   }
+
 };
 </script>
 
