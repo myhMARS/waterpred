@@ -5,12 +5,9 @@ from .models import WaterInfo, WaterPred, StationInfo, WarningNotice
 
 @admin.register(WaterInfo)
 class WaterInfoAdmin(admin.ModelAdmin):
-    list_display = (
-        'times', 'temperature', 'humidity', 'winddirection', 'windpower',
-        'rains', 'waterlevels63000120', 'rains63000100',
-        'waterlevels63000100', 'waterlevels'
-    )
-    search_fields = ('times',)
+    list_display = ('times', 'station_id', 'rains', 'waterlevels')
+    list_filter = ('station__name',)
+    search_fields = ('times', 'station__name')
 
 
 @admin.register(WaterPred)
