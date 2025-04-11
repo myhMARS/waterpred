@@ -16,25 +16,28 @@ class ModelMiddleware:
 
     def load_model(self):
         """从数据库加载模型和 scaler，并存入缓存"""
-        model_pt = LSTMModels.objects.filter(is_activate=True).first()
-        scaler_path = ScalerPT.objects.filter(lstm_model=model_pt.md5).first()
+        models_pt = LSTMModels.objects.filter(is_activate=True).all()
+        for model_pt in models_pt:
+            scaler_path = ScalerPT.objects.get(lstm_model=model_pt.md5)
+            model = Waterlevel_Model(model_pt.input_size, model_pt.hidden_size, model_pt.output_size).to(device)
+            if device == torch.device("cuda"):
+                model.load_state_dict(torch.load(model_pt.file))
+            else:
+                model.load_state_dict(torch.load(model_pt.file, map_location='cpu'))
+            model.eval()
 
-        model = Waterlevel_Model(8, 64, 6).to(device)
-        if device == torch.device("cuda"):
-            model.load_state_dict(torch.load(model_pt.file))
-        else:
-            model.load_state_dict(torch.load(model_pt.file, map_location='cpu'))
-        model.eval()  # 设置为评估模式
+            scaler = joblib.load(scaler_path.file)
+            for _ in scaler:
+                _.feature_names_in_ = None
 
-        scaler = joblib.load(scaler_path.file)
-        for _ in scaler:
-            _.feature_names_in_ = None
+            model_info_dict = {
+                "model": model,
+                "scaler": scaler,
+                "md5": model_pt.md5,
+                "device": device,
+            }
 
-        # 存入缓存（可以设定超时时间，单位秒）
-        cache.set('waterlevel_model', model, timeout=None)
-        cache.set('waterlevel_scaler', scaler, timeout=None)
-        cache.set('model_md5', model_pt.md5, timeout=None)
-        cache.set('device', device, timeout=None)
+            cache.set(model_pt.station_id, model_info_dict, timeout=None)
 
     def __call__(self, request):
         response = self.get_response(request)
