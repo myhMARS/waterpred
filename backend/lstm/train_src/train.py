@@ -1,9 +1,8 @@
 import random
 import logging  # TODO：日志输出到文件中
-
+import matplotlib.pyplot as plt
 import joblib
 import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -27,25 +26,56 @@ def init_seed():
 
 def train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs):
     best_val_rmse = 100
-
+    train_metrice_dict = {
+        "loss_list": [],
+        "rmse_list": [],
+        "mae_list": [],
+    }
+    test_metrice_dict = {
+        "loss_list": [],
+        "rmse_list": [],
+        "mae_list": [],
+    }
     for epoch in range(epochs):
-        try:
-            train(model, optimizer, loss_fn, train_dataloader, metrics)
-            val_metrics = evaluate(model, loss_fn, test_dataloader, metrics)
+        train(model, optimizer, loss_fn, train_dataloader, metrics, train_metrice_dict)
+        val_metrics = evaluate(model, loss_fn, test_dataloader, metrics, test_metrice_dict)
 
-            val_rmse = val_metrics['RMSE']
-            is_best = val_rmse <= best_val_rmse
+        val_rmse = val_metrics['RMSE']
+        is_best = val_rmse <= best_val_rmse
 
-            if is_best:
-                best_val_rmse = val_rmse
-                logging.info("- Found new best RMSE at epoch {}/{}".format(epoch + 1, epochs))
-        except Exception as e:
-            logging.info("- Exception : {}".format(e))
-            return 0
-    return best_val_rmse
+        if is_best:
+            best_val_rmse = val_rmse
+            logging.info("- Found new best RMSE at epoch {}/{}".format(epoch + 1, epochs))
+
+    fig, ax = plt.subplots(1, 3, figsize=(15, 5))
+    ax[0].plot(train_metrice_dict['loss_list'], label='Train')
+    ax[0].plot(test_metrice_dict['loss_list'], label='Test')
+    ax[0].set_title("Loss Curve")
+    ax[0].set_xlabel("Epoch")
+    ax[0].set_ylabel("Loss")
+    ax[0].legend()
+
+    # 绘制 RMSE 曲线
+    ax[1].plot(train_metrice_dict['rmse_list'], label='Train')
+    ax[1].plot(test_metrice_dict['rmse_list'], label='Test')
+    ax[1].set_title("RMSE Curve")
+    ax[1].set_xlabel("Epoch")
+    ax[1].set_ylabel("RMSE")
+    ax[1].legend()
+
+    # 绘制 MAE 曲线
+    ax[2].plot(train_metrice_dict['mae_list'], label='Train')
+    ax[2].plot(test_metrice_dict['mae_list'], label='Test')
+    ax[2].set_title("MAE Curve")
+    ax[2].set_xlabel("Epoch")
+    ax[2].set_ylabel("MAE")
+    ax[2].legend()
+
+    plt.tight_layout()  # 自动调整子图间距
+    return best_val_rmse, fig
 
 
-def train(model, optimizer, loss_fn, dataloader, metrics):
+def train(model, optimizer, loss_fn, dataloader, metrics, metrice_dict):
     model.train()
     summ = []
     for i, (X_batch, y_batch) in enumerate(dataloader):
@@ -71,12 +101,15 @@ def train(model, optimizer, loss_fn, dataloader, metrics):
 
     metrics_mean = {metric: np.mean([x[metric]
                                      for x in summ]) for metric in summ[0]}
+    metrice_dict["loss_list"].append(metrics_mean['loss'])
+    metrice_dict["rmse_list"].append(metrics_mean['RMSE'])
+    metrice_dict["mae_list"].append(metrics_mean['MAE'])
     metrics_string = " ; ".join("{}: {:010.7f}".format(k, v)
                                 for k, v in metrics_mean.items())
     logging.info("- Train metrics: " + metrics_string)
 
 
-def evaluate(model, loss_fn, dataloader, metrics):
+def evaluate(model, loss_fn, dataloader, metrics, metrice_dict):
     model.eval()
 
     summ = []
@@ -99,20 +132,23 @@ def evaluate(model, loss_fn, dataloader, metrics):
 
     metrics_mean = {metric: np.mean([x[metric]
                                      for x in summ]) for metric in summ[0]}
+    metrice_dict["loss_list"].append(metrics_mean['loss'])
+    metrice_dict["rmse_list"].append(metrics_mean['RMSE'])
+    metrice_dict["mae_list"].append(metrics_mean['MAE'])
     metrics_string = " ; ".join("{}: {:010.7f}".format(k, v)
                                 for k, v in metrics_mean.items())
     logging.info("- Eval metrics : " + metrics_string)
     return metrics_mean
 
 
-def train_lstm_model(data, input_size, hidden_size, output_size, time_stamp):
+def train_lstm_model(X_list, y_list, input_size, hidden_size, output_size, time_stamp):
     seq_length = 12
     pred_length = output_size
     scaler = (MinMaxScaler(), MinMaxScaler())
-    df = pd.DataFrame(data)
     try:
         train_dataset = data_loader.WaterLevelDataset(
-            df=df,
+            X_list=X_list,
+            y_list=y_list,
             train=True,
             scaler=scaler,
             seq_length=seq_length,
@@ -121,7 +157,8 @@ def train_lstm_model(data, input_size, hidden_size, output_size, time_stamp):
         train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False)
 
         test_dataset = data_loader.WaterLevelDataset(
-            df=df,
+            X_list=X_list,
+            y_list=y_list,
             train=False,
             scaler=scaler,
             seq_length=seq_length,
@@ -133,13 +170,14 @@ def train_lstm_model(data, input_size, hidden_size, output_size, time_stamp):
         optimizer = optim.Adam(model.parameters(), lr=0.0001)
         loss_fn = nn.MSELoss()
         metrics = net.metrics
-        epochs = 200
-        rmse = train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
+        epochs = 100
+        rmse, fig = train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
         if rmse:
             joblib.dump(scaler, f"temp/scaler_{time_stamp}.pkl")
             lstm_filename = f'waterlevel_model_{input_size}_{hidden_size}_{output_size}_{time_stamp}.pt'
             torch.save(model.state_dict(),
                        f'temp/{lstm_filename}')
+            fig.savefig(f'temp/train_res_{time_stamp}.svg')
             return rmse
     except Exception as e:
         logging.error("- Exception : {}".format(e))
