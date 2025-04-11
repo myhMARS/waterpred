@@ -2,18 +2,11 @@ import re
 
 from rest_framework import serializers
 
-from api.models import WaterInfo
-from lstm.models import LSTMModels, ScalerPT
-
-
-class WaterInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WaterInfo
-        fields = ["temperature", "humidity", "rains", "rains63000100",
-                  "windpower", "waterlevels63000100", "waterlevels63000120", "waterlevels"]
+from lstm.models import LSTMModels, PredictDependence
 
 
 class ModelChangeSerializer(serializers.Serializer):
+    station_id = serializers.CharField()
     md5 = serializers.CharField(
         max_length=32,
         min_length=32,
@@ -28,6 +21,18 @@ class ModelChangeSerializer(serializers.Serializer):
 
 
 class ModelListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LSTMModels
+        fields = ['date', 'name', 'station_id', 'rmse', 'md5', 'is_activate']
+
+
+class PredictDependenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PredictDependence
+        fields = ["station", "dependence"]
+
+
+class ModelInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = LSTMModels
         fields = ['date', 'name', 'rmse', 'md5']
