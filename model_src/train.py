@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False)
     input_size = 8
-    hidden_size = 64
+    hidden_size = 128
     output_size = pred_length
     model = net.Waterlevel_Model(input_size, hidden_size, output_size, 1).to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.0001)
