@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import WaterInfo, WaterPred
+from .models import WaterInfo, WaterPred, StationInfo
 
 
 class PredictInputSerializer(serializers.Serializer):
@@ -37,8 +37,7 @@ class PredictOutputSerializer(serializers.Serializer):
 class WaterInfoDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = WaterInfo
-        fields = ["temperature", "humidity", "rains", "rains63000100",
-                  "windpower", "waterlevels63000100", "waterlevels63000120", "waterlevels"]
+        fields = ["station", "times", "rains", "waterlevels"]
 
 
 class WaterInfoTimeSerializer(serializers.ModelSerializer):
@@ -51,3 +50,9 @@ class WaterPredDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = WaterPred
         fields = ["waterlevel1", "waterlevel2", "waterlevel3", "waterlevel4", "waterlevel5", "waterlevel6"]
+
+
+class StationInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StationInfo
+        fields = ["id", "name", "city", "county", "flood_limit", "guaranteed", "warning"]

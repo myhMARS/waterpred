@@ -4,11 +4,13 @@ from django.contrib import admin
 from django.contrib import messages
 from django.core.cache import cache
 from django.db import transaction
+from django.utils.safestring import mark_safe
 
-from .models import LSTMModels, ScalerPT
+from .models import LSTMModels, ScalerPT, TrainResult, PredictDependence
 
 
 # Register your models here.
+@admin.register(LSTMModels)
 class LSTMModelAdmin(admin.ModelAdmin):
     list_display = ('date', 'name', 'md5', 'station_id', 'rmse', 'is_activate')
     list_filter = ('station__name',)
@@ -69,4 +71,21 @@ class LSTMModelAdmin(admin.ModelAdmin):
     activate_selected.short_description = '启用所选模型（只可选择一个）'
 
 
-admin.site.register(LSTMModels, LSTMModelAdmin)
+@admin.register(TrainResult)
+class TrainResultAdmin(admin.ModelAdmin):
+    list_display = ('lstm_model_id', 'display_image')
+    list_filter = ('lstm_model__station__name',)
+    readonly_fields = ("lstm_model_id", "image", "display_image")
+
+    def display_image(self, obj):
+        return mark_safe('<a href="{url}"><img src="{url}" width="240" height="80""/></a>'.format(
+            url=obj.image.url
+        ))
+
+    search_fields = ("lstm_model__md5",)
+
+
+@admin.register(PredictDependence)
+class PredictDependenceAdmin(admin.ModelAdmin):
+    list_display = ("station", "dependence")
+    search_fields = ("station__id", "station__name")

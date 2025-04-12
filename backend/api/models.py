@@ -11,6 +11,10 @@ class StationInfo(models.Model):
     guaranteed = models.FloatField(verbose_name="保证水位", null=True)
     warning = models.FloatField(verbose_name="警告水位", null=True)
 
+    class Meta:
+        verbose_name = "站点"
+        verbose_name_plural = "站点列表"
+
 
 class WaterInfo(models.Model):
     id = models.AutoField(primary_key=True)
@@ -24,16 +28,24 @@ class WaterInfo(models.Model):
     rains = models.FloatField(verbose_name="降水量", null=True)
     waterlevels = models.FloatField(verbose_name="水位", null=True)
 
+    class Meta:
+        verbose_name = "水位信息"
+        verbose_name_plural = "水位信息"
+
 
 class AreaWeatherInfo(models.Model):
     id = models.AutoField(primary_key=True)
     times = models.DateTimeField(verbose_name="上报时间")
     city = models.CharField(max_length=20, verbose_name="城市")
-    county = models.CharField(max_length=20, verbose_name="区/县")
+    county = models.CharField(max_length=20, verbose_name="区/县", db_index=True)
     temperature = models.FloatField(verbose_name='气温')
     humidity = models.FloatField(verbose_name='湿度')
     winddirection = models.CharField(verbose_name='风向', max_length=4)
     windpower = models.FloatField(verbose_name='风力')
+
+    class Meta:
+        verbose_name = "区域气象信息"
+        verbose_name_plural = verbose_name
 
 
 class WaterPred(models.Model):
@@ -52,6 +64,10 @@ class WaterPred(models.Model):
     waterlevel4 = models.FloatField(verbose_name='time+4')
     waterlevel5 = models.FloatField(verbose_name='time+5')
     waterlevel6 = models.FloatField(verbose_name='time+6')
+
+    class Meta:
+        verbose_name = "水位预测信息"
+        verbose_name_plural = verbose_name
 
 
 class WarningNotice(models.Model):
@@ -74,3 +90,7 @@ class WarningNotice(models.Model):
         to_field='username'
     )
     canceltime = models.DateTimeField(verbose_name="确认时间")
+
+    class Meta:
+        verbose_name = "警告通知信息"
+        verbose_name_plural = verbose_name

@@ -22,6 +22,10 @@ class PredictDependence(models.Model):
     '''
     dependence = models.JSONField(verbose_name="训练数据构成")
 
+    class Meta:
+        verbose_name = "训练依赖项"
+        verbose_name_plural = "训练依赖"
+
 
 class LSTMModels(models.Model):
     id = models.AutoField(primary_key=True)
@@ -43,6 +47,10 @@ class LSTMModels(models.Model):
     md5 = models.CharField(max_length=32, unique=True)  # 确保唯一性
     is_activate = models.BooleanField(default=False, verbose_name="启用状态")
 
+    class Meta:
+        verbose_name = "LSTM模型"
+        verbose_name_plural = verbose_name
+
 
 class ScalerPT(models.Model):
     id = models.AutoField(primary_key=True)
@@ -57,6 +65,10 @@ class ScalerPT(models.Model):
         to_field='md5'
     )
 
+    class Meta:
+        verbose_name = "归一化器模型"
+        verbose_name_plural = verbose_name
+
 
 class TrainResult(models.Model):
     id = models.AutoField(primary_key=True)
@@ -68,3 +80,7 @@ class TrainResult(models.Model):
         db_column='lstm_md5',
         to_field='md5'
     )
+
+    class Meta:
+        verbose_name = "训练结果图"
+        verbose_name_plural = verbose_name
