@@ -30,13 +30,11 @@ def start_train():
     for dependence in dependence.data:
         station = dependence['station']
         dependence_parser = DependenceParser(dependence)
-        if dependence_parser.train_availble:
+        train_availble, (X_list, y_list, input_size) = dependence_parser.get_dataset()
+        if train_availble:
             time_stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            input_size = dependence_parser.input_size
             hidden_size = 128
             output_size = 6
-            X_list = dependence_parser.X
-            y_list = dependence_parser.y
             rmse = train_lstm_model(X_list, y_list, input_size, hidden_size, output_size, time_stamp)
             if rmse:
                 lstm_filename = f'waterlevel_model_{input_size}_{hidden_size}_{output_size}_{time_stamp}.pt'
