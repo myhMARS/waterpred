@@ -32,26 +32,15 @@ class DependenceParser:
         self.target_station = json_data['station']
         self.target_field = dependence_data['target']
 
-        weather_data = self.weather_dependence_parser()
-        stations_data = self.stations_dependence_parser()
-        target_data = self.target_dependence_parser()
-        data = merge_dfs([weather_data, stations_data, target_data])
-
-        self.X, self.y = [], []
-        self.time_series_split(data)
-        self.train_availble = sum([len(i) for i in self.X]) > 3000
-
-        self.input_size = len(self.X[0].columns)
-
     def weather_dependence_parser(self):
         weather_custom_serializer = create_custom_serializer(
             AreaWeatherInfo,
             self.weather_dependence["fields"] + ["times"]
         )
-        querysets = AreaWeatherInfo.objects.filter(
+        queryset = AreaWeatherInfo.objects.filter(
             county=self.weather_dependence["require"]
         ).order_by("times").all()
-        weather_res = weather_custom_serializer(querysets, many=True)
+        weather_res = weather_custom_serializer(queryset, many=True)
         return pd.DataFrame(weather_res.data)
 
     def stations_dependence_parser(self):
@@ -61,10 +50,10 @@ class DependenceParser:
                 WaterInfo,
                 station_dependence["fields"] + ["times"]
             )
-            querysets = WaterInfo.objects.filter(
+            queryset = WaterInfo.objects.filter(
                 station=station_dependence["require"]
             ).order_by("times").all()
-            water_res = water_custom_serializer(querysets, many=True)
+            water_res = water_custom_serializer(queryset, many=True)
             df = pd.DataFrame(water_res.data)
             times_col = df[['times']]
             other_cols = df.drop(columns=['times']).add_prefix(station_dependence["require"])
@@ -78,10 +67,10 @@ class DependenceParser:
             WaterInfo,
             [self.target_field, "times"]
         )
-        querysets = WaterInfo.objects.filter(
+        queryset = WaterInfo.objects.filter(
             station=self.target_station
         ).order_by("times").all()
-        target_res = target_custom_serializer(querysets, many=True)
+        target_res = target_custom_serializer(queryset, many=True)
         return pd.DataFrame(target_res.data)
 
     def time_series_split(self, data):
@@ -90,8 +79,22 @@ class DependenceParser:
         mask = data['time_diff'] >= pd.Timedelta(hours=2)
         split_indices = [0] + data.index[mask].tolist() + [len(data)]
         segment = [data.iloc[split_indices[i]: split_indices[i + 1]] for i in range(len(split_indices) - 1)]
-
+        X, y = [], []
         for data in segment:
             if len(data) >= 12:
-                self.X.append(data.drop(columns=["times", "time_diff"]))
-                self.y.append(data[self.target_field])
+                X.append(data.drop(columns=["times", "time_diff"]))
+                y.append(data[self.target_field])
+
+        return X, y
+
+    def get_dataset(self):
+        weather_data = self.weather_dependence_parser()
+        stations_data = self.stations_dependence_parser()
+        target_data = self.target_dependence_parser()
+        data = merge_dfs([weather_data, stations_data, target_data])
+
+        X, y = self.time_series_split(data)
+        train_availble = sum([len(i) for i in X]) > 3000
+
+        input_size = len(X[0].columns)
+        return train_availble, (X, y, input_size)
