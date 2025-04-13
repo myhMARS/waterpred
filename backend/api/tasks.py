@@ -146,7 +146,7 @@ def update(weather_url, water_url):
     strat_time = time.time()
 
     result = asyncio.run(fetch_data(request_list))
-    logger.INFO('-' * 256)
+
     net_time = time.time()
     for data in result:
         if data['type'] == 'station':
@@ -161,11 +161,10 @@ def update(weather_url, water_url):
     for station in running_model_list:
         update_predict(station)
     lstm_time = time.time()
-    logger.INFO(
+    logger.info(
         f'Request CostTime: {net_time - strat_time} '
         f'/ SQL CostTime: {sql_time - net_time} '
         f'/ LSTM CostTime: {lstm_time - sql_time}'
     )
-    logger.INFO('-' * 256)
 
     return 1
