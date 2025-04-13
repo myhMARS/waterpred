@@ -12,7 +12,6 @@ from lstm.serializers import PredictDependenceSerializer
 from .models import WaterInfo, WaterPred, StationInfo, AreaWeatherInfo
 from .utils import predict, WaterInfoDependenceParser
 
-
 logger = get_task_logger()
 
 
@@ -147,9 +146,8 @@ def update(weather_url, water_url):
     strat_time = time.time()
 
     result = asyncio.run(fetch_data(request_list))
-    logger.INFO('-'*256)
+    logger.INFO('-' * 256)
     net_time = time.time()
-    logger.INFO(f'Request CostTime: {net_time - strat_time}')
     for data in result:
         if data['type'] == 'station':
             insert_water_data(data)
@@ -158,13 +156,16 @@ def update(weather_url, water_url):
         else:
             logger.error(f'Unknown type data: {data}')
     sql_time = time.time()
-    logger.INFO(f'SQL CostTime: {sql_time - net_time}')
 
     running_model_list = LSTMModels.objects.filter(is_activate=True).values_list('station_id', flat=True)
     for station in running_model_list:
         update_predict(station)
     lstm_time = time.time()
-    logger.INFO(f'LSTM CostTime: {lstm_time - sql_time}')
-    logger.INFO('-'*256)
+    logger.INFO(
+        f'Request CostTime: {net_time - strat_time} '
+        f'/ SQL CostTime: {sql_time - net_time} '
+        f'/ LSTM CostTime: {lstm_time - sql_time}'
+    )
+    logger.INFO('-' * 256)
 
     return 1
