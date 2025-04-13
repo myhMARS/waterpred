@@ -1,11 +1,8 @@
-import csv
-from flask import Flask, request, Response, jsonify
-from threading import Thread
 import time
-import pandas as pd
-import logging
+from threading import Thread
 
-logging.basicConfig(level=logging.INFO)
+import pandas as pd
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 df = pd.read_csv("data.csv")
@@ -41,6 +38,11 @@ station63000200['times'] = station63000200['times'].dt.strftime('%Y-%m-%d %H:%M:
 line = 0
 
 
+def delayed_operation_sync():
+    delay_seconds = 0
+    time.sleep(delay_seconds)
+
+
 def add():
     global line
     while True:
@@ -54,10 +56,13 @@ def add():
 def get_waterinfo():
     station_id = request.args.get('station_id')
     if station_id == "63000100":
+        delayed_operation_sync()
         return jsonify(station63000100.iloc[line].to_dict())
     elif station_id == "63000110":
+        delayed_operation_sync()
         return jsonify(station63000110.iloc[line].to_dict())
     elif station_id == "63000200":
+        delayed_operation_sync()
         return jsonify(station63000200.iloc[line].to_dict())
     else:
         return jsonify({'status': 'error', 'detail': 'station_id is invalid'}, status=400)
@@ -68,8 +73,8 @@ def get_waterinfo():
 def get_weather():
     city = request.args.get('city')
     county = request.args.get('county')
-    logging.info(f'city: {city}, county: {county}')
     if city == '杭州' and county == '临安':
+        delayed_operation_sync()
         return jsonify(areaweather.iloc[line].to_dict())
     else:
         return jsonify({'status': 'error', 'detail': f'{city} or {county} is invalid'}, status_code=400)
@@ -77,4 +82,4 @@ def get_weather():
 
 if __name__ == '__main__':
     Thread(target=add, daemon=True).start()
-    app.run(debug=True)
+    app.run(debug=False)
