@@ -13,10 +13,12 @@ class ModelChangeSerializer(serializers.Serializer):
         help_text="MD5哈希值，应为32个字符的十六进制字符串"
     )
 
-    def validate_md5(self, value):
+    @staticmethod
+    def validate_md5(value):
         """验证MD5值的格式是否正确"""
         if not re.match(r'^[a-fA-F0-9]{32}$', value):
             raise serializers.ValidationError("无效的MD5格式，必须是32位十六进制字符")
+
         return value.lower()
 
 

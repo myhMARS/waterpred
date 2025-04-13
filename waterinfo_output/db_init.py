@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import pymysql
+from pymysql.cursors import DictCursor
 from pymysql import Error
 from dotenv import load_dotenv
 import os
@@ -70,7 +71,7 @@ db_config = {
     'password': os.getenv("DB_PWD"),
     'database': os.getenv("DB_NAME"),
     'charset': 'utf8mb4',
-    'cursorclass': pymysql.cursors.DictCursor
+    'cursorclass': DictCursor
 }
 
 
@@ -82,6 +83,7 @@ def insert_dataframe_to_mysql(df, table_name, batch_size=1000):
         table_name: 目标表名
         batch_size: 分批插入的每批行数
     """
+    connection = None
     try:
         # 1. 建立数据库连接
         connection = pymysql.connect(**db_config)
