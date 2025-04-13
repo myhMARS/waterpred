@@ -5,7 +5,7 @@ from api.models import WaterInfo, AreaWeatherInfo
 
 
 def merge_dfs(df_list):
-    if not df_list:
+    if not df_list or any(df.empty for df in df_list):
         return pd.DataFrame()
 
     result = df_list[0]
@@ -41,6 +41,8 @@ class DependenceParser:
             county=self.weather_dependence["require"]
         ).order_by("times").all()
         weather_res = weather_custom_serializer(queryset, many=True)
+        if len(weather_res.data) == 0:
+            return pd.DataFrame()
         return pd.DataFrame(weather_res.data)
 
     def stations_dependence_parser(self):
@@ -54,6 +56,8 @@ class DependenceParser:
                 station=station_dependence["require"]
             ).order_by("times").all()
             water_res = water_custom_serializer(queryset, many=True)
+            if len(water_res.data) == 0:
+                return pd.DataFrame()
             df = pd.DataFrame(water_res.data)
             times_col = df[['times']]
             other_cols = df.drop(columns=['times']).add_prefix(station_dependence["require"])
@@ -71,6 +75,8 @@ class DependenceParser:
             station=self.target_station
         ).order_by("times").all()
         target_res = target_custom_serializer(queryset, many=True)
+        if len(target_res.data) == 0:
+            return pd.DataFrame()
         return pd.DataFrame(target_res.data)
 
     def time_series_split(self, data):
