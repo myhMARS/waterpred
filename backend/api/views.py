@@ -5,11 +5,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import WaterInfo, WaterPred
+from .models import WaterInfo, WaterPred, StationInfo
 from .serializers import WaterInfoDataSerializer, WaterInfoTimeSerializer, WaterPredDataSerializer
 from .utils import predict, WaterInfoDependenceParser
 
-from lstm.models import PredictDependence
+from lstm.models import PredictDependence, LSTMModels
 from lstm.serializers import PredictDependenceSerializer
 
 
@@ -45,3 +45,25 @@ class Water_Info(APIView):
             response_data["pred"] = list(waterpred_data.data[0].values())
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+class StationCount(APIView):
+    def get(self, request):
+        stations = StationInfo.objects.all()
+        stations_count = len(stations)
+        nomal_count = 0
+        for station in stations:
+            wateinfo_obj = WaterInfo.objects.filter(station=station.id).order_by('-times').first()
+            comparedata = [station.warning, station.guaranteed, station.flood_limit]
+            comparedata_filter = [item for item in comparedata if item is not None]
+            if comparedata_filter:
+                if wateinfo_obj.waterlevels < min(comparedata_filter):
+                    nomal_count += 1
+        areacount = stations.values('county').distinct().count()
+
+        data = {
+            'stationCount': stations_count,
+            'normalCount': nomal_count,
+            'areaCount': areacount,
+        }
+        return Response(data, status=status.HTTP_200_OK)
