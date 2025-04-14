@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from "@/views/HomeView.vue";
 import TeamView from "@/views/TeamView.vue";
-import DemoView from "@/views/DemoView.vue";
-import LoginView from "@/views/LoginView.vue";
+import DashboardView from "@/views/DashboardView.vue";
+import Signin from "@/views/Auth/Signin.vue"
 import RegisterView from "@/views/RegisterView.vue";
 import {useAuthStore} from "@/stores/authStatus.js";
 
@@ -20,23 +20,23 @@ const router = createRouter({
       component: TeamView,
     },
     {
-      path: '/demo',
-      name: 'demo',
-      component: DemoView,
+      path: '/dashboard',
+      name: 'dashboard',
+      component: DashboardView,
       meta: {
         requireLogin: true
       }
     },
     {
       path: '/login',
-      name: 'login',
-      component: LoginView,
+      name: 'signin',
+      component: Signin,
     },
     {
       path: '/register',
       name: 'register',
       component: RegisterView
-    }
+    },
   ],
 })
 
