@@ -47,11 +47,11 @@ class LSTMModelAdmin(admin.ModelAdmin):
                 self.message_user(request, f'模型{obj.md5}-{obj.station_id}已启用', messages.INFO)
                 continue
             runing_model_info = cache.get(obj.station_id)
-            print(runing_model_info)
+
             LSTMModels.objects.filter(md5=runing_model_info['md5']).update(is_activate=False)
             self.message_user(request, f'模型{obj.md5}-{obj.station_id}已停用', messages.INFO)
             LSTMModels.objects.filter(md5=obj.md5).update(is_activate=True)
-            cache.delete(obj.station)
+            cache.delete(obj.station_id)
             model = runing_model_info['model']
             device = runing_model_info['device']
             if device == torch.device("cuda"):
