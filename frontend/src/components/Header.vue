@@ -1,5 +1,5 @@
 <template>
-  <header class="absolute inset-x-0 top-0 z-50">
+  <header class="fixed inset-x-0 top-0 z-50">
     <nav class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
       <div class="flex lg:flex-1">
         <a href="#" class="-m-1.5 p-1.5">
@@ -124,7 +124,7 @@ export default {
     return {
       navigation: [
         { name: '首页', href: '/' },
-        { name: 'Demo', href: '/demo' },
+        { name: '监控', href: '/dashboard' },
         { name: '功能', href: '#' },
         { name: '应用前景', href: '#' },
         { name: '团队', href: '/team' },

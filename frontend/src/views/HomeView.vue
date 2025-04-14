@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white">
-    <Header/>
+    <Header class="h"/>
     <div class="relative isolate overflow-hidden bg-linear-to-b from-indigo-100/20 pt-14">
       <div
           class="absolute inset-y-0 right-1/2 -z-10 -mr-96 w-[200%] origin-top-right skew-x-[-30deg] bg-white ring-1 shadow-xl shadow-indigo-600/10 ring-indigo-50 sm:-mr-80 lg:-mr-96"
@@ -17,7 +17,7 @@
               系统能够预测该流域在不同条件下的水位变化趋势，提供精准的洪水预警信息，帮助相关部门更好地应对潜在的洪水风险，提升防灾减灾能力。
               当前示例 DEMO 主要应用于预测里畈东坑溪-里畈水库-桥东村一段流域的水位变化。</p>
             <div class="mt-10 flex items-center gap-x-6">
-              <a href="/demo"
+              <a href="/dashboard"
                  class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                 开始
               </a>
