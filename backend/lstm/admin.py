@@ -61,6 +61,8 @@ class LSTMModelAdmin(admin.ModelAdmin):
             model.eval()
             scaler_model = ScalerPT.objects.get(lstm_model=obj.md5)
             scaler = joblib.load(scaler_model.file)
+            for _ in scaler:
+                _.feature_names_in_ = None
 
             runing_model_info['model'] = model
             runing_model_info['scaler'] = scaler
