@@ -5,18 +5,32 @@ from .models import WaterInfo, WaterPred, StationInfo, WarningNotice, AreaWeathe
 
 @admin.register(WaterInfo)
 class WaterInfoAdmin(admin.ModelAdmin):
-    list_display = ('times', 'station_id', 'rains', 'waterlevels')
+    list_display = ('times', "stationId", 'station_name', 'rains', 'waterlevels')
     list_filter = ('station__name',)
     search_fields = ('times', 'station__name')
+
+    def station_name(self, obj):
+        return obj.station.name
+
+    def stationId(self, obj):
+        return obj.station.id
+
+    stationId.short_description = '站点编号'
+    station_name.short_description = "站名"
 
 
 @admin.register(WaterPred)
 class WaterPredAdmin(admin.ModelAdmin):
     list_display = (
-        "times", "waterlevel1", "waterlevel2", "waterlevel3",
+        "times", "station_name", "waterlevel1", "waterlevel2", "waterlevel3",
         "waterlevel4", "waterlevel5", "waterlevel6"
     )
     search_fields = ('times',)
+
+    def station_name(self, obj):
+        return obj.station.name
+
+    station_name.short_description = "站名"
 
 
 @admin.register(StationInfo)
@@ -28,7 +42,13 @@ class StationInfoAdmin(admin.ModelAdmin):
 
 @admin.register(WarningNotice)
 class WarningNoticeAdmin(admin.ModelAdmin):
-    list_display = ("station", "noticetime", "isCanceled", "canceltime")
+    list_display = ("station_name", "noticetime", "isCanceled", "canceltime")
+
+    def station_name(self, obj):
+        return obj.station.name
+
+    station_name.short_description = "站名"
+
     list_filter = ("station__name", "isCanceled")
     search_fields = ("station__name", 'station__id')
 
