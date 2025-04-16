@@ -15,7 +15,7 @@
           <button
             v-for="option in options"
             :key="option.value"
-            @click="selected = option.value"
+            @click="chageChart"
             :class="[
               selected === option.value
                 ? 'shadow-theme-xs text-gray-900 dark:text-white bg-white dark:bg-gray-800'
@@ -36,7 +36,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
 
 const options = [
@@ -47,6 +47,7 @@ const options = [
 
 const selected = ref('optionOne')
 import VueApexCharts from 'vue3-apexcharts'
+
 
 const series = ref([
   {
