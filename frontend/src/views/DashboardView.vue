@@ -1,47 +1,33 @@
 <template>
   <admin-layout>
     <div class="grid grid-cols-12 gap-4 md:gap-6">
-      <div class="col-span-12 space-y-6 xl:col-span-7">
+      <div class="col-span-12 space-y-6 xl:col-span-12">
         <StationMetric/>
-        <monthly-target />
-      </div>
-      <div class="col-span-12 xl:col-span-5">
-        <monthly-sale />
       </div>
 
       <div class="col-span-12">
-        <statistics-chart />
+        <statistics-chart/>
       </div>
 
       <div class="col-span-12 xl:col-span-5">
-        <customer-demographic />
+        <customer-demographic/>
       </div>
 
       <div class="col-span-12 xl:col-span-7">
-        <recent-orders />
+        <recent-orders/>
       </div>
     </div>
   </admin-layout>
 </template>
 
-<script>
-import AdminLayout from '../components/layout/AdminLayout.vue'
-import MonthlyTarget from '../components/ecommerce/MonthlySale.vue'
-import MonthlySale from '../components/ecommerce/MonthlyTarget.vue'
-import CustomerDemographic from '../components/ecommerce/CustomerDemographic.vue'
-import StatisticsChart from '../components/ecommerce/StatisticsChart.vue'
-import RecentOrders from '../components/ecommerce/RecentOrders.vue'
-import StationMetric from "@/components/ecommerce/StationMetric.vue";
-export default {
-  components: {
-    StationMetric,
-    AdminLayout,
-    MonthlyTarget,
-    MonthlySale,
-    CustomerDemographic,
-    StatisticsChart,
-    RecentOrders,
-  },
-  name: 'Ecommerce',
-}
+<script setup>
+import AdminLayout from '@/components/layout/AdminLayout.vue'
+import CustomerDemographic from '@/components/waterinfos/CustomerDemographic.vue'
+import StatisticsChart from '@/components/waterinfos/StatisticsChart.vue'
+import RecentOrders from '@/components/waterinfos/RecentOrders.vue'
+import StationMetric from "@/components/waterinfos/StationMetric.vue";
+
+defineOptions({
+  name: 'Dashborad'
+})
 </script>
