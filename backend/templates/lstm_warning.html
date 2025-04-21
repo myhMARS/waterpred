@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>🌧 洪水预测预警通知</title>
+</head>
+<body>
+<div class="container">
+    <h1>🌧 洪水预测预警通知</h1>
+    <div class="section">
+        管理员您好，<br><br>
+        根据{{ timestamp }}采集到的信息，洪水预警系统中部署的深度学习模型向您发出警告，<strong class="highlight">{{ station_name }}</strong>
+        站点预计将在未来6小时内出现水位上升，达到或超过 <strong class="highlight">{{ predicted_level }}
+        米</strong>，超过设定{{ warning_type }}
+        <strong class="highlight">{{ warning_level }} 米</strong>。
+    </div>
+    <div>
+        <hr>
+    </div>
+    <div class="section" style="text-align: center; margin-top: 30px;">
+        <h3 style="color: #0f172a;">📈 未来 6 小时水位预测图</h3>
+        <img src="data:image/png;base64,{{ waterlevel_chart }}" alt="水位折线图"
+             style="max-width: 100%; border: 1px solid #cbd5e1; border-radius: 8px;"/>
+    </div>
+    <div>
+        <hr>
+    </div>
+    <div class="section">
+        建议提前部署相关应急响应措施，重点监测相关地区实测数据。
+    </div>
+
+    <div class="section">
+        请注意：本预警基于历史数据与未来气象、水文预测，具有一定不确定性。实际情况请结合现场监测加以判断。
+        本通知由洪水预测预警系统自动发出。<br>
+        技术支持：水文智能分析平台
+    </div>
+</div>
+</body>
+</html>

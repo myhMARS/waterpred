@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>洪水预警通知</title>
+</head>
+<body>
+<div class="container">
+    <h1>⚠ 洪水预警通知</h1>
+    <div class="section">
+        管理员您好，<br><br>
+        据最新监测数据，位于 <strong class="highlight">{{ station_name }}</strong> 的水位监测点于 <strong class="highlight">{{ timestamp }}</strong> 记录到当前水位 <strong class="highlight">{{ current_level }}
+        米</strong>，以达到{{ warning_type }} <strong class="highlight">{{ warning_level }} 米</strong>。
+    </div>
+
+    <div class="section">
+        请及时核实相关信息，并根据应急预案采取相应防范措施。如需技术支持或异常确认，请联系系统运维人员。
+    </div>
+    <hr>
+    <div class="footer">
+        本通知由洪水监测预警系统自动发出，请勿直接回复。<br>
+        系统支持：水利信息中心
+    </div>
+</div>
+</body>
+</html>
