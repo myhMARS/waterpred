@@ -1,5 +1,4 @@
 import hashlib
-import logging
 import os
 import shutil
 from datetime import datetime
@@ -7,11 +6,10 @@ from datetime import datetime
 from celery import shared_task
 from django.core.files import File
 
-from .models import LSTMModels, ScalerPT, PredictDependence, TrainResult
-from api.models import StationInfo
-from .serializers import PredictDependenceSerializer
+from .models import LSTMModels, ScalerPT, PredictStations, TrainResult
+from api.models import StationInfo, WaterInfo
+from .serializers import PredictStationsSerializer
 from .train_src.train import train_lstm_model
-from .utils import DependenceParser
 
 
 def get_file_md5(filepath):
@@ -25,19 +23,23 @@ def get_file_md5(filepath):
 
 @shared_task
 def start_train():
-    queryset = PredictDependence.objects.all()
-    dependence = PredictDependenceSerializer(queryset, many=True)
-    for dependence in dependence.data:
-        station = dependence['station']
-        dependence_parser = DependenceParser(dependence)
-        train_availble, (X_list, y_list, input_size) = dependence_parser.get_dataset()
-        if train_availble:
+    queryset = PredictStations.objects.all()
+    stations = PredictStationsSerializer(queryset, many=True)
+    for station in stations.data:
+        station_id = station["station"]
+        dataset = WaterInfo.objects.filter(station_id=station_id).order_by("times").values_list("waterlevels", flat=True)
+        train_available = False
+        if dataset.exists() and dataset.count() > 5000:
+            train_available = True
+        if train_available:
             time_stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            input_size = 1
             hidden_size = 128
             output_size = 6
-            rmse = train_lstm_model(X_list, y_list, input_size, hidden_size, output_size, time_stamp)
+            lstm_filename = f'waterlevel_model_{station_id}_{input_size}_{hidden_size}_{output_size}_{time_stamp}.pt'
+            rmse = train_lstm_model(dataset, input_size, hidden_size, output_size, time_stamp, lstm_filename)
             if rmse:
-                lstm_filename = f'waterlevel_model_{input_size}_{hidden_size}_{output_size}_{time_stamp}.pt'
+
                 md5 = get_file_md5(f'temp/{lstm_filename}')
                 with open(f'temp/{lstm_filename}', 'rb') as f:
                     lstm_instance = LSTMModels.objects.create(
@@ -48,7 +50,7 @@ def start_train():
                         output_size=output_size,
                         rmse=rmse,
                         md5=md5,
-                        station=StationInfo.objects.get(id=station),
+                        station=StationInfo.objects.get(id=station_id),
                     )
                 with open(f'temp/scaler_{time_stamp}.pkl', 'rb') as f:
                     ScalerPT.objects.create(

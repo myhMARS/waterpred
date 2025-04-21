@@ -83,8 +83,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, metrice_dict):
         y_batch = y_batch.to(device)
         optimizer.zero_grad()
         y_pred = model(X_batch)
-
-        loss = loss_fn(y_pred, y_batch)
+        loss = loss_fn(y_pred, y_batch.squeeze(-1))
         loss.backward()
         optimizer.step()
 
@@ -94,7 +93,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, metrice_dict):
 
             # y_pred = scaler[1].inverse_transform(np.array(y_pred).reshape(-1, 1))
             # y_batch = scaler[1].inverse_transform(np.array(y_batch).reshape(-1, 1))
-            summary_batch = {metric: metrics[metric](y_pred, y_batch)
+            summary_batch = {metric: metrics[metric](y_pred, y_batch.squeeze(-1))
                              for metric in metrics}
             summary_batch['loss'] = loss.item()
             summ.append(summary_batch)
@@ -118,14 +117,14 @@ def evaluate(model, loss_fn, dataloader, metrics, metrice_dict):
         labels_batch = labels_batch.to(device)
 
         output_batch = model(data_batch)
-        loss = loss_fn(output_batch, labels_batch)
+        loss = loss_fn(output_batch, labels_batch.squeeze(-1))
 
         output_batch = output_batch.data.cpu().numpy()
         labels_batch = labels_batch.data.cpu().numpy()
 
         # show(output_batch, labels_batch)
         # print(output_batch.squeeze(-1), labels_batch)
-        summary_batch = {metric: metrics[metric](output_batch, labels_batch)
+        summary_batch = {metric: metrics[metric](output_batch, labels_batch.squeeze(-1))
                          for metric in metrics}
         summary_batch['loss'] = loss.item()
         summ.append(summary_batch)
@@ -141,14 +140,14 @@ def evaluate(model, loss_fn, dataloader, metrics, metrice_dict):
     return metrics_mean
 
 
-def train_lstm_model(X_list, y_list, input_size, hidden_size, output_size, time_stamp):
+def train_lstm_model(dataset, input_size, hidden_size, output_size, time_stamp, lstm_filename):
+    init_seed()
     seq_length = 12
     pred_length = output_size
-    scaler = (MinMaxScaler(), MinMaxScaler())
+    scaler = MinMaxScaler()
     try:
         train_dataset = data_loader.WaterLevelDataset(
-            X_list=X_list,
-            y_list=y_list,
+            dataset=dataset,
             train=True,
             scaler=scaler,
             seq_length=seq_length,
@@ -157,8 +156,7 @@ def train_lstm_model(X_list, y_list, input_size, hidden_size, output_size, time_
         train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False)
 
         test_dataset = data_loader.WaterLevelDataset(
-            X_list=X_list,
-            y_list=y_list,
+            dataset=dataset,
             train=False,
             scaler=scaler,
             seq_length=seq_length,
@@ -174,11 +172,11 @@ def train_lstm_model(X_list, y_list, input_size, hidden_size, output_size, time_
         rmse, fig = train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
         if rmse:
             joblib.dump(scaler, f"temp/scaler_{time_stamp}.pkl")
-            lstm_filename = f'waterlevel_model_{input_size}_{hidden_size}_{output_size}_{time_stamp}.pt'
             torch.save(model.state_dict(),
                        f'temp/{lstm_filename}')
             fig.savefig(f'temp/train_res_{time_stamp}.svg')
             return rmse
+        return 0
     except Exception as e:
         logging.error("- Exception : {}".format(e))
         return 0

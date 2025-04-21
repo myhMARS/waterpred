@@ -2,7 +2,7 @@ from django.db import models
 from api.models import StationInfo
 
 
-class PredictDependence(models.Model):
+class PredictStations(models.Model):
     station = models.OneToOneField(
         StationInfo,
         on_delete=models.CASCADE,
@@ -10,21 +10,9 @@ class PredictDependence(models.Model):
         db_column='station_id',
         to_field='id'
     )
-    '''JSON字段构成如下
-    {
-        data:
-            AreaWeatherInfo: [fields],
-            Station_id: [fields],
-            ...
-        target:
-            Station_id: [field] 
-    }
-    '''
-    dependence = models.JSONField(verbose_name="训练数据构成")
 
     class Meta:
-        verbose_name = "训练依赖项"
-        verbose_name_plural = "训练依赖"
+        verbose_name = "站点名称"
 
 
 class LSTMModels(models.Model):
