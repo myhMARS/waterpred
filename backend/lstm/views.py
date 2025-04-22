@@ -89,7 +89,7 @@ class ChangeModel(APIView):
             )
 
         except Exception as e:
-            logging.INFO(e)
+            logging.info(e)
             return Response({
                 'detail': f'服务器错误',
             },
