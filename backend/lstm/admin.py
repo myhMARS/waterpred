@@ -6,7 +6,7 @@ from django.core.cache import cache
 from django.db import transaction
 from django.utils.safestring import mark_safe
 
-from .models import LSTMModels, ScalerPT, TrainResult, PredictDependence
+from .models import LSTMModels, ScalerPT, TrainResult
 
 
 # Register your models here.
@@ -61,8 +61,7 @@ class LSTMModelAdmin(admin.ModelAdmin):
             model.eval()
             scaler_model = ScalerPT.objects.get(lstm_model=obj.md5)
             scaler = joblib.load(scaler_model.file)
-            for _ in scaler:
-                _.feature_names_in_ = None
+            scaler.feature_names_in_ = None
 
             runing_model_info['model'] = model
             runing_model_info['scaler'] = scaler
@@ -79,7 +78,8 @@ class TrainResultAdmin(admin.ModelAdmin):
     list_filter = ('lstm_model__station__name',)
     readonly_fields = ("lstm_model_id", "image", "display_image")
 
-    def display_image(self, obj):
+    @staticmethod
+    def display_image(obj):
         return mark_safe('<a href="{url}"><img src="{url}" width="240" height="80""/></a>'.format(
             url=obj.image.url
         ))
@@ -87,7 +87,3 @@ class TrainResultAdmin(admin.ModelAdmin):
     search_fields = ("lstm_model__md5",)
 
 
-@admin.register(PredictDependence)
-class PredictDependenceAdmin(admin.ModelAdmin):
-    list_display = ("station", "dependence")
-    search_fields = ("station__id", "station__name")
