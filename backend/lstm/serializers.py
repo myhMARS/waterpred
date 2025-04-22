@@ -2,7 +2,7 @@ import re
 
 from rest_framework import serializers
 
-from lstm.models import LSTMModels, PredictDependence
+from lstm.models import LSTMModels, PredictStations
 
 
 class ModelChangeSerializer(serializers.Serializer):
@@ -28,10 +28,10 @@ class ModelListSerializer(serializers.ModelSerializer):
         fields = ['date', 'name', 'station_id', 'rmse', 'md5', 'is_activate']
 
 
-class PredictDependenceSerializer(serializers.ModelSerializer):
+class PredictStationsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PredictDependence
-        fields = ["station", "dependence"]
+        model = PredictStations
+        fields = ["station"]
 
 
 class ModelInfoSerializer(serializers.ModelSerializer):
