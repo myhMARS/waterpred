@@ -1,23 +1,14 @@
-import numpy as np
-from django.http import Http404
-from datetime import datetime
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import WaterInfo, WaterPred, StationInfo
 from .serializers import WaterInfoDataSerializer, WaterInfoTimeSerializer, WaterPredDataSerializer
-from .utils import predict, WaterInfoDependenceParser
-
-from lstm.models import PredictDependence, LSTMModels
-from lstm.serializers import PredictDependenceSerializer
 
 
 class TaskTest(APIView):
     def get(self, request):
-        from .tasks import update
-        update.delay('http://127.0.0.1:5000/api/weather', 'http://127.0.0.1:5000/api/waterinfo')
-        return Response({'status': 'ok'})
+        return Response(status=status.HTTP_200_OK)
 
 
 class Water_Info(APIView):
@@ -59,6 +50,8 @@ class StationCount(APIView):
             if comparedata_filter:
                 if wateinfo_obj.waterlevels < min(comparedata_filter):
                     nomal_count += 1
+            else:
+                nomal_count += 1
         areacount = stations.values('county').distinct().count()
 
         data = {
