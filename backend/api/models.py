@@ -23,6 +23,7 @@ class WaterInfo(models.Model):
         on_delete=models.CASCADE,
         related_name='waterinfo',
         to_field='id',
+        verbose_name="站点编号"
     )
     times = models.DateTimeField(verbose_name="上报时间")
     rains = models.FloatField(verbose_name="降水量", null=True)
@@ -79,17 +80,20 @@ class WarningNotice(models.Model):
         db_column='station_id',
         to_field='id'
     )
-    noticetime = models.DateTimeField(auto_now_add=True, verbose_name="通知时间")
-    isSuccess = models.BooleanField(default=True, verbose_name="通知发送状态")
+    noticetype = models.CharField(max_length=8, verbose_name="超限类型")
+    max_level = models.FloatField(verbose_name="最高水位")
+    noticetime = models.DateTimeField(verbose_name="通知时间")
+    isSuccess = models.BooleanField(default=False, verbose_name="通知发送状态")
     isCanceled = models.BooleanField(default=False, verbose_name="通知确认状态")
     executor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='executor',
         db_column='executor',
-        to_field='username'
+        to_field='username',
+        null=True,
     )
-    canceltime = models.DateTimeField(verbose_name="确认时间")
+    canceltime = models.DateTimeField(null=True,verbose_name="确认时间")
 
     class Meta:
         verbose_name = "警告通知信息"
