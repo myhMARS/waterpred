@@ -1,16 +1,17 @@
 import asyncio
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import httpx
 from celery import shared_task
 from django.utils import timezone
+from django.db.models import Max
 
 from backend.logging_config import get_task_logger
-from lstm.models import LSTMModels, PredictDependence
-from lstm.serializers import PredictDependenceSerializer
-from .models import WaterInfo, WaterPred, StationInfo, AreaWeatherInfo
-from .utils import predict, WaterInfoDependenceParser
+from lstm.models import LSTMModels
+from .models import WaterInfo, WaterPred, StationInfo, AreaWeatherInfo, WarningNotice
+from .serializers import WaterInfoDataSerializer
+from .utils import predict, sendWarning
 
 logger = get_task_logger()
 
@@ -70,6 +71,7 @@ def insert_water_data(data):
         rains=rains,
         waterlevels=waterlevels
     )
+    check_warning(datetime.strptime(data['times'], "%Y-%m-%d %H:%M:%S"), station_id, [waterlevels])
     logger.debug(f"插入waterinfo {station_id}-{times}")
 
 
@@ -96,23 +98,77 @@ def insert_weather_data(data):
 
 
 def update_predict(station_id):
-    queryset = PredictDependence.objects.get(station_id=station_id)
-    dependence = PredictDependenceSerializer(queryset)
-    dependence_parser = WaterInfoDependenceParser(dependence.data, 12)
-    predict_availbel, data = dependence_parser.get_dataset()
-    times = dependence_parser.times
-    if predict_availbel:
-        output = predict(station_id, data).tolist()[0]
+    queryset = WaterInfo.objects.filter(station_id=station_id).order_by('-times').all()[:12][::-1]
+    waterinfos = WaterInfoDataSerializer(queryset, many=True)
+    times = [item['times'] for item in waterinfos.data]
+    try:
+        predict_flag = True
+        times_check = [datetime.fromisoformat(time_str) for time_str in times]
+        for i in range(1, len(times)):
+            time_diff = times_check[i] - times_check[i - 1]
+            if time_diff != timedelta(hours=1):
+                predict_flag = False
+                break
+        if predict_flag and len(queryset) >= 12:
+            times = waterinfos.data[-1]['times']
+            times = datetime.fromisoformat(times)
+            data = [float(item.waterlevels) for item in queryset]
+            output = predict(station_id, data).tolist()[0]
 
-        fields = {f"waterlevel{i + 1}": level for i, level in enumerate(output)}
-        WaterPred.objects.update_or_create(
-            times=times,
-            station=StationInfo.objects.filter(id=station_id).first(),
-            **fields,
-        )
-        logger.debug(f'插入预测数据{station_id}-{times}')
-        return 1
+            fields = {f"waterlevel{i + 1}": level for i, level in enumerate(output)}
+            WaterPred.objects.update_or_create(
+                times=times,
+                station=StationInfo.objects.filter(id=station_id).first(),
+                **fields,
+            )
+            logger.debug(f'插入预测数据{station_id}-{times}')
+            check_warning(timezone.make_naive(times), station_id, output)
+            return 1
+    except Exception as e:
+        logger.error(f"{e},{station_id}-{times}")
     return 0
+
+
+def check_warning(times, station_id, waterlevels):
+    queryset = StationInfo.objects.get(id=station_id)
+    station_name = queryset.name
+    limits = [queryset.flood_limit, queryset.warning, queryset.guaranteed]
+    types = ['汛限水位', '警戒水位', '保证水位']
+    res = [0] * len(limits)
+
+    for waterlevel in waterlevels:
+        for i in range(len(limits)):
+            if limits[i] and waterlevel > limits[i]:
+                res[i] += 1
+    if any(res):
+        index = 0
+        for i in range(len(res) - 1, -1, -1):
+            if res[i] != 0:
+                index = i
+                break
+        logger.debug('进入了一次校验')
+        try:
+            queryset = WarningNotice.objects.filter(station_id=station_id, isCanceled=False)
+            if queryset.exists():
+                current_max = max(waterlevels)
+                existing_max = queryset.aggregate(Max('max_level'))['max_level__max']
+                if current_max > existing_max:
+                    queryset.update(max_level=max(waterlevels))
+                    sendWarning(times, station_name, waterlevels, types[index], limits[index])
+                    queryset.update(isSuccess=True)
+            else:
+                obj = WarningNotice.objects.create(
+                    station_id=station_id,
+                    noticetime=timezone.make_aware(times),
+                    noticetype=types[index],
+                    max_level=max(waterlevels),
+                )
+                sendWarning(times, station_name, waterlevels, types[index], limits[index])
+                obj.isSuccess = True
+                obj.save()
+                logger.info('成功发送了一次邮件')
+        except Exception as e:
+            logger.error(f'error info: {e}, station_id: {station_id}, times: {times} , noticetype: {types[index]}')
 
 
 @shared_task
@@ -161,10 +217,15 @@ def update(weather_url, water_url):
     for station in running_model_list:
         update_predict(station)
     lstm_time = time.time()
-    logger.info(
+    logger.debug(
         f'Request CostTime: {net_time - strat_time} '
         f'/ SQL CostTime: {sql_time - net_time} '
         f'/ LSTM CostTime: {lstm_time - sql_time}'
     )
 
     return 1
+
+
+@shared_task
+def WarngingNoticeManage():
+    print('checkchek')
