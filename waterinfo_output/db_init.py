@@ -36,31 +36,6 @@ station63000200["station_id"] = "63000200"
 
 dependence = pd.DataFrame({
     "station_id": ["63000200"],
-    "dependence": ["""{
-  "weather": {
-    "require": "临安",
-    "fields": [
-      "temperature",
-      "humidity",
-      "windpower"
-    ]
-  },
-  "stations": [
-    {
-      "require": "63000110",
-      "fields": ["waterlevels"]
-    },
-    {
-      "require": "63000100",
-      "fields": ["rains","waterlevels"]
-    },
-    {
-      "require": "63000200",
-      "fields": ["rains"]
-    }
-  ],
-  "target": "waterlevels"
-}"""]
 })
 
 print(areaweather)
@@ -118,4 +93,4 @@ insert_dataframe_to_mysql(stationinfo, "api_stationinfo")
 insert_dataframe_to_mysql(station63000110, "api_waterinfo")
 insert_dataframe_to_mysql(station63000200, "api_waterinfo")
 insert_dataframe_to_mysql(station63000100, "api_waterinfo")
-insert_dataframe_to_mysql(dependence, "lstm_predictdependence")
+insert_dataframe_to_mysql(dependence, "lstm_predictstations")
