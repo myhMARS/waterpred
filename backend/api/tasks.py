@@ -154,7 +154,6 @@ def check_warning(times, station_id, waterlevels):
                 existing_max = queryset.aggregate(Max('max_level'))['max_level__max']
                 if current_max > existing_max:
                     queryset.update(max_level=max(waterlevels))
-                    sendWarning(times, station_name, waterlevels, types[index], limits[index])
                     queryset.update(isSuccess=True)
             else:
                 obj = WarningNotice.objects.create(
