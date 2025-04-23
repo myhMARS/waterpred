@@ -3,81 +3,16 @@ from datetime import datetime, timedelta
 from io import BytesIO
 
 import matplotlib
-
 import numpy as np
-import pandas as pd
 import torch
 from django.conf import settings
 from django.core.cache import cache
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-
-from lstm.utils import DependenceParser, create_custom_serializer, merge_dfs
-from .models import WaterInfo, AreaWeatherInfo
+from django.contrib.auth.models import Group
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
-
-class WaterInfoDependenceParser(DependenceParser):
-    def __init__(self, json_data, datalength):
-        super(WaterInfoDependenceParser, self).__init__(json_data)
-        self.datalength = datalength
-        self.predict_available = True
-        self.times = datetime.now()
-
-    def weather_dependence_parser(self):
-        weather_custom_serializer = create_custom_serializer(
-            AreaWeatherInfo,
-            self.weather_dependence["fields"] + ["times"]
-        )
-        queryset = AreaWeatherInfo.objects.filter(
-            county=self.weather_dependence["require"]
-        ).order_by("-times")[:self.datalength][::-1]
-        weather_res = weather_custom_serializer(queryset, many=True)
-        return pd.DataFrame(weather_res.data)
-
-    def stations_dependence_parser(self):
-        df_list = []
-        for station_dependence in self.stations_dependence:
-            water_custom_serializer = create_custom_serializer(
-                WaterInfo,
-                station_dependence["fields"] + ["times"]
-            )
-
-            queryset = WaterInfo.objects.filter(
-                station=station_dependence["require"]
-            ).order_by("-times")[:self.datalength][::1]
-            water_res = water_custom_serializer(queryset, many=True)
-            df = pd.DataFrame(water_res.data)
-            times_col = df[['times']]
-            other_cols = df.drop(columns=['times']).add_prefix(station_dependence["require"])
-            result = pd.concat([times_col, other_cols], axis=1)
-            df_list.append(result)
-        merged_df = merge_dfs(df_list)
-        return merged_df
-
-    def target_dependence_parser(self):
-        target_custom_serializer = create_custom_serializer(
-            WaterInfo,
-            [self.target_field, "times"]
-        )
-        queryset = WaterInfo.objects.filter(
-            station=self.target_station
-        ).order_by("-times")[:18][::-1]
-        target_res = target_custom_serializer(queryset, many=True)
-        self.times = target_res.data[-1]['times']
-        return pd.DataFrame(target_res.data)
-
-    def get_dataset(self):
-        weather_data = self.weather_dependence_parser()
-        stations_data = self.stations_dependence_parser()
-        target_data = self.target_dependence_parser()
-        data = merge_dfs([weather_data, stations_data, target_data]).head(12)
-
-        X, y = self.time_series_split(data)
-        predict_available = True if len(X) == 1 else False
-        return predict_available, X[0].values if predict_available else None
 
 
 def predict(station, data):
@@ -101,11 +36,13 @@ def predict(station, data):
 
 def sendWarning(times, station_name, waterlevels, warning_type, warning_waterlevel):
     html_context = get_html_context(times, station_name, waterlevels, warning_type, warning_waterlevel)
+    admin_group = Group.objects.get(name='管理员组')
+    admin_user = admin_group.user_set.exclude(email='').values_list('email', flat=True)
     msg = EmailMessage(
         subject='水情预警报告',
         body=html_context,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=['1972751073@qq.com', settings.DEFAULT_FROM_EMAIL]
+        to=list(admin_user)+settings.DEFAULT_FROM_EMAIL
     )
     msg.content_subtype = 'html'
     msg.send()
