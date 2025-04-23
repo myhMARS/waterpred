@@ -5,12 +5,11 @@ import torch
 from django.core.cache import cache
 from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
+from backend.logging_config import get_task_logger
 from lstm.models import LSTMModels, ScalerPT
 from lstm.train_src.model_net.net import Waterlevel_Model
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-from backend.logging_config import get_task_logger
-
 logger = get_task_logger(__name__)
 
 
@@ -58,7 +57,7 @@ class WarningMessageTaskMiddleware:
         try:
             schedule, _ = IntervalSchedule.objects.get_or_create(
                 every=3,
-                period=IntervalSchedule.SECONDS,
+                period=IntervalSchedule.HOURS,
             )
 
             PeriodicTask.objects.update_or_create(
