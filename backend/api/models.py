@@ -93,7 +93,7 @@ class WarningNotice(models.Model):
         to_field='username',
         null=True,
     )
-    canceltime = models.DateTimeField(null=True,verbose_name="确认时间")
+    canceltime = models.DateTimeField(null=True, verbose_name="确认时间")
 
     class Meta:
         verbose_name = "警告通知信息"
