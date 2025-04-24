@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import WaterInfo, WaterPred, StationInfo, WarningNotice, AreaWeatherInfo
+from .models import WaterInfo, WaterPred, StationInfo, WarningNotice, AreaWeatherInfo, Statistics
 
 
 @admin.register(WaterInfo)
@@ -26,6 +26,7 @@ class WaterPredAdmin(admin.ModelAdmin):
         "waterlevel4", "waterlevel5", "waterlevel6"
     )
     search_fields = ('times',)
+    list_filter = ('station__name',)
 
     def station_name(self, obj):
         return obj.station.name
@@ -58,3 +59,12 @@ class AreaWeatherInfoAdmin(admin.ModelAdmin):
     list_display = ('times', 'city', 'county', 'temperature', 'humidity', 'winddirection', 'windpower')
     list_filter = ('city', 'county')
     search_fields = ('times', 'city', 'county')
+
+
+@admin.register(Statistics)
+class StatisticsAdmin(admin.ModelAdmin):
+    list_display = ('year', 'month', 'day', 'station_name')
+
+    @staticmethod
+    def station_name(obj):
+        return obj.station.name

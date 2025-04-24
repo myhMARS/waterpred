@@ -98,3 +98,18 @@ class WarningNotice(models.Model):
     class Meta:
         verbose_name = "警告通知信息"
         verbose_name_plural = verbose_name
+
+
+class Statistics(models.Model):
+    id = models.AutoField(primary_key=True)
+    year = models.IntegerField(verbose_name="年")
+    month = models.IntegerField(verbose_name="月")
+    day = models.IntegerField(verbose_name="日")
+    station = models.ForeignKey(
+        StationInfo,
+        on_delete=models.CASCADE,
+        related_name='statistics',
+        db_column='station_id',
+        to_field='id'
+    )
+
