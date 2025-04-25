@@ -20,7 +20,7 @@ def predict(station, data):
     device = model_obj['device']
     model = model_obj['model']
     model.eval()
-    model.lstm.flatten_parameters()
+    # model.lstm.flatten_parameters()
     scaler = model_obj['scaler']
 
     data = np.array(data).reshape(-1, 1)
@@ -42,7 +42,7 @@ def sendWarning(times, station_name, waterlevels, warning_type, warning_waterlev
         subject='水情预警报告',
         body=html_context,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=list(admin_user)+settings.DEFAULT_FROM_EMAIL
+        to=list(admin_user)+[settings.DEFAULT_FROM_EMAIL]
     )
     msg.content_subtype = 'html'
     msg.send()
@@ -51,11 +51,11 @@ def sendWarning(times, station_name, waterlevels, warning_type, warning_waterlev
 def generate_waterlevel_plot(timestamp, levels, warning_level):
     plt.rcParams['font.family'] = 'SimHei'  # 黑体
     plt.rcParams['axes.unicode_minus'] = False  # 正常显示负号
-    timestamps = [datetime.strftime(timestamp + timedelta(hours=i), "%Y-%m-%d %H:%M:%S") for i in range(1, 7)]
+    timestamps = [datetime.strftime(timestamp + timedelta(hours=i), "%Y-%m-%d %H:%M:%S") for i in range(len(levels))]
     plt.figure(figsize=(15, 4))
     plt.plot(timestamps, levels, marker='o', color='#3b82f6', label="预测水位")
     plt.axhline(y=warning_level, color='red', linestyle='--', label='预警水位')
-    plt.title("未来6小时水位变化")
+    plt.title("当前水位及未来6小时水位变化")
     plt.xlabel("时间")
     plt.ylabel("水位 (m)")
     plt.grid(True)
@@ -71,22 +71,13 @@ def generate_waterlevel_plot(timestamp, levels, warning_level):
 
 
 def get_html_context(timestamp, station_name, waterlevels, waring_type, warning_level):
-    if len(waterlevels) == 1:
-        html_context = render_to_string('warning_email.html', {
-            "station_name": station_name,
-            "timestamp": timestamp,
-            "current_level": waterlevels[0],
-            "warning_type": waring_type,
-            "warning_level": warning_level
-
-        })
-    else:
-        html_context = render_to_string('lstm_warning.html', {
-            "station_name": station_name,
-            "timestamp": timestamp,
-            "predicted_level": f'{max(waterlevels):.2f}',
-            "warning_type": waring_type,
-            "warning_level": warning_level,
-            "waterlevel_chart": generate_waterlevel_plot(timestamp, waterlevels, warning_level)
-        })
+    html_context = render_to_string('lstm_warning.html', {
+        "station_name": station_name,
+        "timestamp": timestamp,
+        "current_level": waterlevels[0],
+        "predicted_level": f'{max(waterlevels):.2f}',
+        "warning_type": waring_type,
+        "warning_level": warning_level,
+        "waterlevel_chart": generate_waterlevel_plot(timestamp, waterlevels, warning_level)
+    })
     return html_context
