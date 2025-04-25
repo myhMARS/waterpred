@@ -7,23 +7,19 @@ from sklearn.metrics import mean_squared_error
 class Waterlevel_Model(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=1):
         super(Waterlevel_Model, self).__init__()
-        self.conv = nn.Sequential(
-            nn.Conv1d(input_size, hidden_size, kernel_size=3),
-            nn.ReLU(),
-            nn.MaxPool1d(kernel_size=3, stride=1),
-        )
-
-        self.lstm = nn.LSTM(hidden_size, hidden_size, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_size, output_size)
+        self.input_proj = nn.Linear(input_size, hidden_size)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_size, nhead=8, batch_first=True, dropout=0.2)
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        self.output_proj = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
         batch_size, seq_len, _ = x.size()
-        x = x.permute(0, 2, 1)
-        x = self.conv(x)
-        x = x.permute(0, 2, 1)
-        out, _ = self.lstm(x)
-        out = self.fc(out)
-        return out[:, -1, :]
+        x = self.input_proj(x)
+        x = x.permute(1, 0, 2)
+        x = self.transformer(x)
+        x = x[-1]
+        out = self.output_proj(x)
+        return out
 
 
 def RMSE(output, target):
