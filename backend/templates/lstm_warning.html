@@ -9,6 +9,9 @@
     <h1>🌧 洪水预测预警通知</h1>
     <div class="section">
         管理员您好，<br><br>
+        据最新监测数据，位于 <strong class="highlight">{{ station_name }}</strong> 的水位监测点于 <strong class="highlight">{{ timestamp }}</strong> 记录到当前水位 <strong class="highlight">{{ current_level }}
+        米</strong>
+        <hr>
         根据{{ timestamp }}采集到的信息，洪水预警系统中部署的深度学习模型向您发出警告，<strong class="highlight">{{ station_name }}</strong>
         站点预计将在未来6小时内出现水位上升，达到或超过 <strong class="highlight">{{ predicted_level }}
         米</strong>，超过设定{{ warning_type }}
