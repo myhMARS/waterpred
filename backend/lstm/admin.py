@@ -7,6 +7,7 @@ from django.db import transaction
 from django.utils.safestring import mark_safe
 
 from .models import LSTMModels, ScalerPT, TrainResult
+from .train_src.model_net.net import Waterlevel_Model
 
 
 # Register your models here.
@@ -47,11 +48,18 @@ class LSTMModelAdmin(admin.ModelAdmin):
                 self.message_user(request, f'模型{obj.md5}-{obj.station_id}已启用', messages.INFO)
                 continue
             runing_model_info = cache.get(obj.station_id)
-
-            LSTMModels.objects.filter(md5=runing_model_info['md5']).update(is_activate=False)
-            self.message_user(request, f'模型{obj.md5}-{obj.station_id}已停用', messages.INFO)
+            if runing_model_info:
+                LSTMModels.objects.filter(md5=runing_model_info['md5']).update(is_activate=False)
+                self.message_user(request, f'模型{obj.md5}-{obj.station_id}已停用', messages.INFO)
+                cache.delete(obj.station_id)
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            print(obj.input_size, obj.hidden_size, obj.output_size)
+            runing_model_info = {
+                'model': Waterlevel_Model(obj.input_size, obj.hidden_size, obj.output_size).to(device),
+                'device': device,
+                'md5': obj.md5,
+            }
             LSTMModels.objects.filter(md5=obj.md5).update(is_activate=True)
-            cache.delete(obj.station_id)
             model = runing_model_info['model']
             device = runing_model_info['device']
             if device == torch.device("cuda"):
