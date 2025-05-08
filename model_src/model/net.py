@@ -5,25 +5,29 @@ from sklearn.metrics import mean_squared_error
 
 
 class Waterlevel_Model(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, num_layers=1):
+    def __init__(self, input_dim=1, hidden_dim=64, output_length=1):
         super(Waterlevel_Model, self).__init__()
-        self.conv = nn.Sequential(
-            nn.Conv1d(input_size, hidden_size, kernel_size=3),
-            nn.ReLU(),
-            nn.MaxPool1d(kernel_size=3, stride=1),
-        )
+        self.encoder = nn.LSTM(input_dim, hidden_dim, batch_first=True)
+        self.decoder = nn.LSTM(input_dim, hidden_dim, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, input_dim)
+        self.output_length = output_length
 
-        self.lstm = nn.LSTM(hidden_size, hidden_size, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_size, output_size)
+    def forward(self, src, tgt=None, teacher_forcing_ratio=0.5):
+        _, (hidden, cell) = self.encoder(src)
+        decoder_input = src[:, -1:, :]
+        outputs = []
 
-    def forward(self, x):
-        batch_size, seq_len, _ = x.size()
-        x = x.permute(0, 2, 1)
-        x = self.conv(x)
-        x = x.permute(0, 2, 1)
-        out, _ = self.lstm(x)
-        out = self.fc(out)
-        return out[:, -1, :]
+        for t in range(self.output_length):
+            decoder_output, (hidden, cell) = self.decoder(decoder_input, (hidden, cell))
+            output = self.fc(decoder_output)
+            outputs.append(output)
+
+            if self.training and torch.rand(1) < teacher_forcing_ratio and tgt is not None:
+                decoder_input = tgt[:, t:t+1, :]
+            else:
+                decoder_input = output
+
+        return torch.cat(outputs, dim=1)
 
 
 def RMSE(output, target):

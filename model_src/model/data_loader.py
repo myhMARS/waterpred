@@ -1,23 +1,21 @@
 import torch
 import pandas as pd
+import random
 from torch.utils.data import Dataset
 
 
 class WaterLevelDataset(Dataset):
-    def __init__(self, file_path, train, seq_length, pred_length, scaler, split_ratio=0.8):
+    def __init__(self, file_path, train, seq_length, pred_length, scaler, split_ratio=0.7):
         self.file_path = file_path
         self.train = train
         self.df = pd.read_csv(self.file_path)
+        X = self.df['waterlevels']
+        X = scaler.fit_transform(X.values.reshape(-1, 1))
 
-        X = scaler[0].fit_transform(self.df[[
-            "temperature", "humidity", "windpower", "waterlevels63000120",
-            "rains63000100", "waterlevels63000100", "rains", "waterlevels"
-        ]])
-        y = scaler[1].fit_transform(self.df.waterlevels.values.reshape(-1, 1))
         sequences = []
         for i in range(len(X) - seq_length - pred_length):
             seq_x = (X[i: i + seq_length, :])
-            seq_y = (y[i + seq_length: i + seq_length + pred_length, -1])
+            seq_y = (X[i + seq_length: i + seq_length + pred_length, -1])
             sequences.append((seq_x, seq_y))
         train_size = int(len(sequences) * split_ratio)  # 70% 训练
         data_train, data_test = sequences[:train_size], sequences[train_size:]
