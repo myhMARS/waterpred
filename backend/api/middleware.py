@@ -68,6 +68,18 @@ class WarningMessageTaskMiddleware:
                     'args': json.dumps([]),
                 }
             )
+            schedule, _ = IntervalSchedule.objects.get_or_create(
+                every=5,
+                period=IntervalSchedule.SECONDS,
+            )
+            PeriodicTask.objects.update_or_create(
+                name='获取水文数据',
+                defaults={
+                    'interval': schedule,
+                    'task': 'api.tasks.update',
+                    'args': json.dumps(["http://127.0.0.1:5000/api/weather","http://127.0.0.1:5000/api/waterinfo"]),
+                }
+            )
         except Exception as e:
             logger.error(e, self.__class__.__name__)
 
