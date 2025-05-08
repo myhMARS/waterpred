@@ -2,7 +2,7 @@
   <slot></slot>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 import { useSidebarProvider } from '@/composables/useSidebar'
 
 useSidebarProvider()
