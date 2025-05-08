@@ -5,6 +5,7 @@ import DashboardView from "@/views/DashboardView.vue";
 import Signin from "@/views/Auth/Signin.vue"
 import RegisterView from "@/views/RegisterView.vue";
 import {useAuthStore} from "@/stores/authStatus.js";
+import UserProfileView from "@/views/User/UserProfile.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +38,14 @@ const router = createRouter({
       name: 'register',
       component: RegisterView
     },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: UserProfileView,
+      meta: {
+        requireLogin: true
+      }
+    }
   ],
 })
 
