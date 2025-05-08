@@ -25,12 +25,13 @@ def predict(station, data):
 
     data = np.array(data).reshape(-1, 1)
     data = scaler.transform(data)
-
-    input_data = torch.tensor(data, dtype=torch.float32).to(device)
-
-    output = model(input_data.unsqueeze(0))
-    output = output.data.cpu().numpy()
-    output = scaler.inverse_transform(np.array(output).reshape(-1, output.shape[-1]))
+    for i in range(6):
+        input_data = data[i:]
+        input_data = torch.tensor(input_data, dtype=torch.float32).to(device)
+        output = model(input_data.unsqueeze(0))
+        output = output.data.cpu().numpy()
+        data = np.append(data, output, axis=0)
+    output = scaler.inverse_transform(np.array(data[-6:]).reshape(-1, 6))
     return output
 
 
