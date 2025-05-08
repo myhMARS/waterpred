@@ -8,7 +8,7 @@ class Waterlevel_Model(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=1):
         super(Waterlevel_Model, self).__init__()
         self.input_proj = nn.Linear(input_size, hidden_size)
-        encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_size, nhead=8, batch_first=True, dropout=0.2)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_size, nhead=4, batch_first=True, dropout=0.2)
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         self.output_proj = nn.Linear(hidden_size, output_size)
 
