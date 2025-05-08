@@ -229,8 +229,7 @@ import {
   ListIcon,
   PlugInIcon,
 } from "../../icons";
-import BoxCubeIcon from "@/icons/BoxCubeIcon.vue";
-import { useSidebar } from "@/composables/useSidebar";
+import { useSidebar } from "@/composables/useSidebar.js";
 
 const route = useRoute();
 
@@ -252,8 +251,8 @@ const menuGroups = [
       },
       {
         icon: UserCircleIcon,
-        name: "User Profile",
-        path: "/team",
+        name: "个人资料",
+        path: "/profile",
       },
 
       // {

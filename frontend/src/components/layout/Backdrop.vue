@@ -6,7 +6,7 @@
   ></div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 import { useSidebar } from '@/composables/useSidebar'
 const { toggleMobileSidebar, isMobileOpen } = useSidebar()
 </script>

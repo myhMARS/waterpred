@@ -84,7 +84,7 @@
   </header>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 import { ref } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
 import ThemeToggler from '../common/ThemeToggler.vue'
