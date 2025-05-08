@@ -35,7 +35,7 @@ def start_train():
             time_stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             input_size = 1
             hidden_size = 128
-            output_size = 6
+            output_size = 1
             lstm_filename = f'waterlevel_model_{station_id}_{input_size}_{hidden_size}_{output_size}_{time_stamp}.pt'
             rmse = train_lstm_model(dataset, input_size, hidden_size, output_size, time_stamp, lstm_filename)
             if rmse:
@@ -67,5 +67,4 @@ def start_train():
                 if os.path.exists(temp_dir):
                     shutil.rmtree(temp_dir)
                     os.makedirs(temp_dir)
-                return 1
-    return 0
+    return 1
