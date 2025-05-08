@@ -35,7 +35,7 @@ station63000200 = df[["times", "rains", "waterlevels"]].copy()
 station63000200["station_id"] = "63000200"
 
 dependence = pd.DataFrame({
-    "station_id": ["63000200"],
+    "station_id": ["63000200", '63000100'],
 })
 
 print(areaweather)
