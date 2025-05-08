@@ -35,7 +35,7 @@
           正常：{{ normalCount }}
         </span>
                   <span
-            class=" gap-1 rounded-full bg-error-50 py-0.5 pl-2 pr-2.5 text-sm font-medium text-error-600 dark:bg-error-500/15 dark:text-success-500"
+            class=" gap-1 rounded-full bg-error-50 py-0.5 pl-2 pr-2.5 text-sm font-medium text-error-600 dark:bg-error-500/15 dark:text-error-500"
         >
           异常：{{ warningCount }}
         </span>

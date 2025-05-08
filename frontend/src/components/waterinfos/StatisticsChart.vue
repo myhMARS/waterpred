@@ -164,9 +164,9 @@ async function fetchdata() {
     }
   })
       .then(response => {
-        const rawData = response.data.data;
-        const year = response.data.year;
-        const month = response.data.month;
+        const rawData = response.data.data
+        const year = response.data.year
+        const month = response.data.month
         const days = response.data.day
         const millisecondsPerDay = 24 * 60 * 60 * 1000;
         if (selected.value === 'month') {
@@ -281,7 +281,9 @@ function chageChart(selectValue) {
   }
   fetchdata()
       .then()
-      .catch()
+      .catch(error => {
+        console.log(error)
+      })
 }
 
 onMounted(async () => {
