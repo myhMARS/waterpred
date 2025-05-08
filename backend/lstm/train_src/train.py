@@ -1,5 +1,5 @@
 import random
-import logging  # TODO：日志输出到文件中
+import logging
 import matplotlib.pyplot as plt
 import joblib
 import numpy as np
@@ -164,11 +164,11 @@ def train_lstm_model(dataset, input_size, hidden_size, output_size, time_stamp, 
         )
         test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 
-        model = net.Waterlevel_Model(input_size, hidden_size, output_size, 1).to(device)
-        optimizer = optim.Adam(model.parameters(), lr=0.0001)
+        model = net.Waterlevel_Model(input_size, hidden_size, output_size).to(device)
+        optimizer = optim.AdamW(model.parameters(), lr=0.0001)
         loss_fn = nn.MSELoss()
         metrics = net.metrics
-        epochs = 100
+        epochs = 150
         rmse, fig = train_and_evaluate(model, optimizer, loss_fn, train_dataloader, test_dataloader, metrics, epochs)
         if rmse:
             joblib.dump(scaler, f"temp/scaler_{time_stamp}.pkl")
