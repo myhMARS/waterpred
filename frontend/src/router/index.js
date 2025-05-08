@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from "@/views/HomeView.vue";
-import TeamView from "@/views/TeamView.vue";
-import DashboardView from "@/views/DashboardView.vue";
+import HomeView from "@/views/Intruduce/HomeView.vue";
+import TeamView from "@/views/Intruduce/TeamView.vue";
+import DashboardView from "@/views/Manage/DashboardView.vue";
 import Signin from "@/views/Auth/Signin.vue"
 import RegisterView from "@/views/RegisterView.vue";
 import {useAuthStore} from "@/stores/authStatus.js";
