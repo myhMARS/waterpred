@@ -25,8 +25,8 @@
         </div>
       </div>
     </div>
-    <div class="max-w-full overflow-x-auto custom-scrollbar">
-      <div id="chartThree" class="-ml-4 min-w-[1000px] xl:min-w-full pl-2">
+      <div class="w-full overflow-x-hidden">
+      <div id="chartThree" class="pl-2">
         <VueApexCharts type="area" height="310" v-if="chartOptions" :options="chartOptions" :series="series"/>
       </div>
     </div>
@@ -183,8 +183,8 @@ async function fetchdata() {
         } else if (selected.value === 'quarter') {
           const quarter = Math.floor((month - 1) / 3) + 1
           timelineStart.value = new Date(year, (quarter - 1) * 3, 1).getTime()
-          const daysInMonth = new Date(year, (quarter - 1) * 3 + 3, 0).getDate()
-          timelineEnd.value = new Date(year, (quarter - 1) * 3 + 3, daysInMonth).getTime()
+          const daysInMonth = new Date(year, (quarter - 1) * 3 + 2, 0).getDate()
+          timelineEnd.value = new Date(year, (quarter - 1) * 3 + 2, daysInMonth).getTime()
           // 1天 = 86400000 毫秒
           chageChartOption(timelineStart.value, timelineEnd.value, 12)
           cacheData.value.quarterData = {
@@ -209,11 +209,9 @@ async function fetchdata() {
           const year = date.getFullYear();
           const month = date.getMonth() + 1
           const day = date.getDate()
-          console.log('insert')
           const key = `${year}-${month}-${day}`;
           fullData[key] = 0; // 初始化默认值
         }
-        console.log('check')
         // 合并已有数据
         for (const key in rawData) {
           fullData[key] = rawData[key];
@@ -245,38 +243,41 @@ function chageChart(selectValue) {
   if (selectValue === 'month') {
     if (Object.keys(cacheData.value.monthData).length > 0) {
       chageChartOption(
-          cacheData.value.monthData.timelineStart,
-          cacheData.value.monthData.timelineEnd,
+          cacheData.value.monthData.startTime,
+          cacheData.value.monthData.endTime,
           cacheData.value.monthData.tick
       )
       series.value = [{
         name: '异常站点个数',
         data: cacheData.value.monthData.data
       }]
+      return
     }
   }else if (selectValue === 'quarter') {
     if (Object.keys(cacheData.value.quarterData).length > 0) {
       chageChartOption(
-          cacheData.value.quarterData.timelineStart,
-          cacheData.value.quarterData.timelineEnd,
+          cacheData.value.quarterData.startTime,
+          cacheData.value.quarterData.endTime,
           cacheData.value.quarterData.tick
       )
       series.value = [{
         name: '异常站点个数',
         data: cacheData.value.quarterData.data
       }]
+      return
     }
   }else if (selectValue === 'year') {
     if (Object.keys(cacheData.value.yearData).length > 0) {
       chageChartOption(
-          cacheData.value.yearData.timelineStart,
-          cacheData.value.yearData.timelineEnd,
+          cacheData.value.yearData.startTime,
+          cacheData.value.yearData.endTime,
           cacheData.value.yearData.tick
       )
       series.value = [{
         name: '异常站点个数',
         data: cacheData.value.yearData.data
       }]
+      return
     }
   }
   fetchdata()
