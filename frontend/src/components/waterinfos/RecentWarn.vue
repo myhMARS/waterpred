@@ -48,7 +48,7 @@
             />
           </svg>
 
-          Filter
+=          筛选
         </button>
 
         <div
@@ -56,51 +56,44 @@
             class="fixed inset-0 z-50 flex items-center justify-center"
         >
           <div
-              class="w-96 rounded-lg bg-white p-6 shadow-lg ring-black ring-opacity-5 dark:bg-gray-900"
+              class="w-96 rounded-lg bg-white p-6 shadow-sm border border-gray-200 dark:bg-gray-900 dark:border-gray-800"
           >
             <form @submit.prevent="applyFilters">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">确认状态</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">通知状态</label>
                 <select
-                    v-model="filters.isCancel"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                    v-model="filters.isSuccess"
+                    class="mt-1 block w-full rounded-md border-gray-300 border dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                 >
-                  <option value="">All</option>
-                  <option value="0">未确认</option>
-                  <option value="1">已确认</option>
+                  <option :value="''">全部</option>
+                  <option :value="false">发送失败</option>
+                  <option :value="true">已发送</option>
                 </select>
               </div>
               <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">告警状态</label>
                 <select
-                    v-model="filters.isSuccess"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                    v-model="filters.isCancel"
+                    class="mt-1 block w-full rounded-md border-gray-300 border dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                 >
-                  <option value="">All</option>
-                  <option value="0">发送失败</option>
-                  <option value="1">已发送</option>
+                  <option :value="''">全部</option>
+                  <option :value="false">未确认</option>
+                  <option :value="true">已确认</option>
                 </select>
               </div>
               <div class="flex justify-end gap-2">
                 <button
-                    type="button"
-                    @click="clearFilters"
-                    class="px-3 py-1 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
-                >
-                  Clear
-                </button>
-                <button
                     type="submit"
                     class="px-3 py-1 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
                 >
-                  Apply
+                  确定
                 </button>
                 <button
                     type="button"
                     @click="toggleFilter"
                     class="px-3 py-1 text-sm rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
                 >
-                  Cancel
+                  取消
                 </button>
               </div>
             </form>
@@ -108,9 +101,10 @@
         </div>
 
         <button
+            @click="clearFilters"
             class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
         >
-          See all
+          查看全部
         </button>
       </div>
     </div>
@@ -135,7 +129,7 @@
         </thead>
         <tbody>
         <tr
-            v-for="(warning, index) of warnings"
+            v-for="(warning, index) of filter_warnings"
             :key="index"
             class="border-t border-gray-100 dark:border-gray-800"
         >
@@ -185,7 +179,7 @@
                     warning.isCancel === false,
                 }"
               >
-                {{ warning.isCancel ? '已确认' : '未确认' }}
+                {{ warning.isCancel ? '已取消' : '告警中' }}
               </span>
               <p
                   v-if="warning.isCancel"
@@ -217,16 +211,22 @@ const toggleFilter = () => {
 }
 
 const clearFilters = () => {
-  filters.value.name = ''
-  filters.value.category = ''
+  filter_warnings.value = warnings.value
 }
 
 const applyFilters = () => {
   console.log('Applied filters:', filters.value)
+  filter_warnings.value = filter_warnings.value.filter(warning => {
+    const matchSuccess = filters.value.isSuccess === '' || warning.isSuccess === filters.value.isSuccess;
+    const matchCancel = filters.value.isCancel === '' || warning.isCancel === filters.value.isCancel;
+
+    return matchSuccess && matchCancel;
+  });
   showFilter.value = false
 }
 
 const warnings = ref([])
+const filter_warnings = ref([])
 
 async function fetchData() {
   await axios.get(
@@ -249,6 +249,7 @@ async function fetchData() {
             canceltime: new Date(warning.canceltime).toLocaleString(),
           })
         }
+        filter_warnings.value = warnings.value
       })
       .catch(error => {
         console.log(error)
