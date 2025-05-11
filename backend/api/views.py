@@ -135,11 +135,10 @@ class WarningInfo(APIView):
         isSuccess: str = request.query_params.get("isSuccess")
 
         filters = {}
-        print(isSuccess, isCancel)
         if isCancel:
-            filters["isCanceled"] = int(isCancel)
+            filters["isCanceled"] = bool(int(isCancel))
         if isSuccess:
-            filters["isSuccess"] = int(isSuccess)
+            filters["isSuccess"] = bool(int(isSuccess))
         queryset: QuerySet = WarningNotice.objects.filter(**filters)
 
         data = WarngingsSerializer(queryset, many=True).data
