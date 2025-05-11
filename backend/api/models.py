@@ -113,3 +113,7 @@ class Statistics(models.Model):
         to_field='id'
     )
 
+    class Meta:
+        verbose_name = "告警统计"
+        verbose_name_plural = verbose_name
+

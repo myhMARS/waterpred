@@ -78,15 +78,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 load_dotenv()
 # 数据库配置
 DATABASES = {
@@ -119,6 +110,11 @@ SIMPLE_JWT = {
 }
 
 DJOSER = {
+    'USER_ID_FIELD': 'username',
+    # 'LOGIN_FIELD': 'email',
+    'SEND_ACTIVATION_EMAIL': True,
+    'ACTIVATION_URL': 'activate/{uid}/{token}',
+    'SEND_CONFIRMATION_EMAIL': True,
     'SERIALIZERS': {
         'user_create': 'accounts.serializers.CustomUserCreateSerializer',
     }

@@ -22,7 +22,8 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("api.urls", namespace="api")),
-    path("lstm/", include("lstm.urls"), name="lstm"),
+    path("lstm/", include("lstm.urls", namespace="lstm")),
+    path('accounts/', include("accounts.urls", namespace="accounts")),
     path("auth/", include('djoser.urls')),
     path("auth/", include('djoser.urls.jwt')),
 ]

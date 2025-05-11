@@ -68,3 +68,4 @@ class StatisticsAdmin(admin.ModelAdmin):
     @staticmethod
     def station_name(obj):
         return obj.station.name
+
