@@ -10,7 +10,7 @@
           <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">姓名</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">Musharof</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ username }}</p>
             </div>
 
             <div>
@@ -18,18 +18,18 @@
                 邮件地址
               </p>
               <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
+                {{ email }}
               </p>
             </div>
 
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">手机号</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">+09 363 398 46</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ phonenumber }}</p>
             </div>
 
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">职务</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">Team Manager</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ manager }}</p>
             </div>
           </div>
         </div>
@@ -41,14 +41,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import Modal from './Modal.vue'
+import { ref, onMounted } from 'vue'
 
-const isProfileInfoModal = ref(false)
+const username = ref('')
+const email = ref('')
+const phonenumber = ref('')
+const manager = ref('')
 
-const saveProfile = () => {
-  // Implement save profile logic here
-  console.log('Profile saved')
-  isProfileInfoModal.value = false
-}
+onMounted(() => {
+  username.value = localStorage.getItem('username')
+  email.value = localStorage.getItem('email')
+  phonenumber.value = localStorage.getItem('phone')
+  manager.value = localStorage.getItem('manager') || '暂无'
+})
+
 </script>
