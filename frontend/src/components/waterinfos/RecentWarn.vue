@@ -229,14 +229,13 @@ const warnings = ref([])
 const filter_warnings = ref([])
 
 async function fetchData() {
-  await axios.get(
-      'api/warnings/', {
-        params: filters.value
-      })
-      .then(response => {
+  try {
+    const response = await axios.get(
+        'api/warnings/', {
+          params: filters.value
+        })
         const warnings_data = response.data
         for (const warning of warnings_data) {
-          console.log(warning)
           warnings.value.push({
             name: warning.station_name,
             id: warning.station,
@@ -250,13 +249,12 @@ async function fetchData() {
           })
         }
         filter_warnings.value = warnings.value
-      })
-      .catch(error => {
-        console.log(error)
-      })
+  } catch (error) {
+    console.log(error)
+  }
 }
 
-onMounted(async () => {
-  await fetchData()
+onMounted(() => {
+  fetchData()
 })
 </script>
