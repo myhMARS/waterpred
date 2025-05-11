@@ -2,10 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from "@/views/Intruduce/HomeView.vue";
 import TeamView from "@/views/Intruduce/TeamView.vue";
 import DashboardView from "@/views/Manage/DashboardView.vue";
-import Signin from "@/views/Auth/Signin.vue"
-import RegisterView from "@/views/RegisterView.vue";
+import SigninView from "@/views/Auth/SigninView.vue"
+import RegisterView from "@/views/Auth/RegisterView.vue";
 import {useAuthStore} from "@/stores/authStatus.js";
 import UserProfileView from "@/views/User/UserProfile.vue";
+import ActivateView from "@/views/Auth/ActivateView.vue";
+import StationListView from "@/views/Manage/StationListView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,9 +31,17 @@ const router = createRouter({
       }
     },
     {
+      path: '/stationlist',
+      name: 'stationlist',
+      component: StationListView,
+      meta: {
+        requireLogin: true
+      }
+    },
+    {
       path: '/login',
       name: 'login',
-      component: Signin,
+      component: SigninView,
     },
     {
       path: '/register',
@@ -45,6 +55,11 @@ const router = createRouter({
       meta: {
         requireLogin: true
       }
+    },
+    {
+      path:'/activate/:uid/:token',
+      name: 'activate',
+      component: ActivateView
     }
   ],
 })
