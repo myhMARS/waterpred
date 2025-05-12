@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-      <div class="w-full overflow-x-hidden">
+    <div class="w-full overflow-x-hidden">
       <div id="chartThree" class="pl-2">
         <VueApexCharts type="area" height="310" v-if="chartOptions" :options="chartOptions" :series="series"/>
       </div>
@@ -62,14 +62,7 @@ function chageChartOption(startTime, endTime, timelength) {
       position: 'top',
       horizontalAlign: 'left',
     },
-    zoom: {// 禁用缩放
-      enabled: false,
-      autoScaleYaxis: false, // 禁用自动Y轴缩放
-      type: 'none', // 明确指定不启用任何类型的缩放
-      touch: {
-        enabled: false // 禁用触摸设备上的捏合缩放
-      }
-    },
+
     colors: ['#465FFF', '#9CB9FF'],
     chart: {
       fontFamily: 'Outfit, sans-serif',
@@ -77,9 +70,9 @@ function chageChartOption(startTime, endTime, timelength) {
       toolbar: {
         show: false,
       },
-      selection: {
-        enabled: false // 禁用框选缩放
-      }
+      zoom: {
+        enabled: false,
+      },
     },
     fill: {
       gradient: {
@@ -158,7 +151,7 @@ function chageChartOption(startTime, endTime, timelength) {
 }
 
 async function fetchdata() {
-  await axios.get('api/statistics/', {
+  await axios.get('/api/statistics/', {
     params: {
       time_filter: selected.value
     }
@@ -196,7 +189,7 @@ async function fetchdata() {
           timelineStart.value = new Date(year, 0, 1).getTime()
           timelineEnd.value = new Date(year, 11, 31).getTime()
           chageChartOption(timelineStart.value, timelineEnd.value, 12)
-          cacheData.value.quarterData = {
+          cacheData.value.yearData = {
             startTime: timelineStart.value,
             endTime: timelineEnd.value,
             tick: 12,
@@ -225,7 +218,7 @@ async function fetchdata() {
           cacheData.value.monthData.data = data
         } else if (selected.value === 'quarter') {
           cacheData.value.quarterData.data = data
-        } else if (selected === 'year') {
+        } else if (selected.value === 'year') {
           cacheData.value.yearData.data = data
         }
         series.value = [{
@@ -253,7 +246,7 @@ function chageChart(selectValue) {
       }]
       return
     }
-  }else if (selectValue === 'quarter') {
+  } else if (selectValue === 'quarter') {
     if (Object.keys(cacheData.value.quarterData).length > 0) {
       chageChartOption(
           cacheData.value.quarterData.startTime,
@@ -266,7 +259,7 @@ function chageChart(selectValue) {
       }]
       return
     }
-  }else if (selectValue === 'year') {
+  } else if (selectValue === 'year') {
     if (Object.keys(cacheData.value.yearData).length > 0) {
       chageChartOption(
           cacheData.value.yearData.startTime,
@@ -281,10 +274,6 @@ function chageChart(selectValue) {
     }
   }
   fetchdata()
-      .then()
-      .catch(error => {
-        console.log(error)
-      })
 }
 
 onMounted(async () => {
