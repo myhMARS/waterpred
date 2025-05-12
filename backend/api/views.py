@@ -22,6 +22,28 @@ class TaskTest(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class StationList(APIView):
+    def get(self, request):
+        queryset = StationInfo.objects.all()
+        response = []
+        for obj in queryset:
+            stationinfo = dict()
+            stationinfo['id'] = obj.id
+            stationinfo['name'] = obj.name
+            stationinfo['position'] = f'{obj.city}/{obj.county}'
+            stationinfo['flood_limit'] = obj.flood_limit
+            stationinfo['guaranteed'] = obj.guaranteed
+            stationinfo['warning'] = obj.warning
+            station_waterlevel = WaterInfo.objects.filter(station=obj.id).order_by('-times').first()
+            stationinfo['time'] = station_waterlevel.times
+            stationinfo['waterlevel'] = station_waterlevel.waterlevels
+            stationinfo['status'] = WarningNotice.objects.filter(station=obj.id,isCanceled=False).count()
+            response.append(stationinfo)
+        return Response(response, status=status.HTTP_200_OK)
+
+
+
+
 class Water_Info(APIView):
     def get(self, request):
         station_id: str = request.query_params.get("station_id")
