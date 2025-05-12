@@ -423,9 +423,9 @@
             </a>
           </td>
           <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
-            <p class="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+            <a class="block font-medium text-gray-800 text-theme-sm dark:text-white/90" :href="`/station/${station.id}`">
               {{ station.name }}
-            </p>
+            </a>
           </td>
 
           <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
@@ -548,7 +548,7 @@ import axios from "axios";
 
 const search = ref('')
 const sortColumn = ref('status')
-const sortDirection = ref('asc')
+const sortDirection = ref('desc')
 const currentPage = ref(1)
 const perPage = ref(10)
 /**
