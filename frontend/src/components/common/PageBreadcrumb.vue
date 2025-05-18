@@ -37,12 +37,14 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { defineProps } from 'vue'
 
-interface BreadcrumbProps {
-  pageTitle: string
-}
-
-defineProps<BreadcrumbProps>()
+defineProps({
+  pageTitle: {
+    type: String,
+    required: true
+  }
+})
 </script>
+
