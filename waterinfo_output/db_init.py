@@ -13,7 +13,7 @@ areaweather["city"] = "杭州"
 areaweather["county"] = "临安"
 
 stationinfo = pd.DataFrame({
-    "name": ['里畈东坑溪', '里畈水库', '桥东村'],
+    "name": ['里畈西坑溪', '里畈水库', '桥东村'],
     "id": ["63000110", "63000100", "63000200"],
     "city": ["杭州"] * 3,
     "county": ["临安"] * 3,
