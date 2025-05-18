@@ -3,6 +3,11 @@ from rest_framework import serializers
 from .models import WaterInfo, WaterPred, StationInfo, Statistics, WarningNotice
 
 
+class WarnCancelDataSerializer(serializers.Serializer):
+    station_id = serializers.CharField()
+    detail = serializers.CharField(allow_blank=True)
+
+
 class WaterInfoDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = WaterInfo
@@ -39,4 +44,5 @@ class WarngingsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WarningNotice
-        fields = ['station', 'station_name', 'noticetype', 'max_level', 'isSuccess', 'noticetime', 'isCanceled', 'executor', 'canceltime']
+        fields = ['station', 'station_name', 'noticetype', 'max_level', 'isSuccess', 'noticetime', 'isCanceled',
+                  'executor', 'canceltime']

@@ -1,18 +1,18 @@
 from collections import defaultdict
 from datetime import datetime
 
+import httpx
 from django.db.models import QuerySet
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.utils import timezone
 
-from .models import WaterInfo, WaterPred, StationInfo, Statistics, WarningNotice
+from .models import WaterInfo, WaterPred, StationInfo, Statistics, WarningNotice, WarningCloseDetail
 from .serializers import WaterInfoDataSerializer, WaterInfoTimeSerializer, WaterPredDataSerializer, \
-    WarngingsSerializer
-from django.contrib.auth.models import Group
-from .tasks import update_predict
+    WarngingsSerializer, WarnCancelDataSerializer
 from .utils import predict
 
 
@@ -24,7 +24,14 @@ class TaskTest(APIView):
 
 class StationList(APIView):
     def get(self, request):
-        queryset = StationInfo.objects.all()
+        stationid: str = request.query_params.get("stationid")
+        filters = {}
+        if stationid:
+            filters = {
+                'id': stationid,
+            }
+
+        queryset = StationInfo.objects.filter(**filters)
         response = []
         for obj in queryset:
             stationinfo = dict()
@@ -36,12 +43,11 @@ class StationList(APIView):
             stationinfo['warning'] = obj.warning
             station_waterlevel = WaterInfo.objects.filter(station=obj.id).order_by('-times').first()
             stationinfo['time'] = station_waterlevel.times
+            stationinfo['rain'] = station_waterlevel.rains
             stationinfo['waterlevel'] = station_waterlevel.waterlevels
-            stationinfo['status'] = WarningNotice.objects.filter(station=obj.id,isCanceled=False).count()
+            stationinfo['status'] = WarningNotice.objects.filter(station=obj.id, isCanceled=False).count()
             response.append(stationinfo)
         return Response(response, status=status.HTTP_200_OK)
-
-
 
 
 class Water_Info(APIView):
@@ -60,7 +66,6 @@ class Water_Info(APIView):
         for time in waterinfo_time.data:
             times.extend(time.values())
         response_data = {
-            "times": times,
             "data": waterinfo_data.data,
         }
         waterpred = WaterPred.objects.filter(times=times[-1], station=station_id)
@@ -153,15 +158,79 @@ class StatisticsInfo(APIView):
 
 class WarningInfo(APIView):
     def get(self, request):
+        station: str = request.query_params.get("station")
         isCancel: str = request.query_params.get("isCancel")
         isSuccess: str = request.query_params.get("isSuccess")
 
         filters = {}
+        if station:
+            filters["station"] = station
         if isCancel:
             filters["isCanceled"] = bool(int(isCancel))
         if isSuccess:
             filters["isSuccess"] = bool(int(isSuccess))
-        queryset: QuerySet = WarningNotice.objects.filter(**filters)
-
+        print(filters)
+        queryset: QuerySet = WarningNotice.objects.filter(**filters).order_by("-noticetime")
         data = WarngingsSerializer(queryset, many=True).data
         return Response(data, status=status.HTTP_200_OK)
+
+
+class RecentData(APIView):
+    def get(self, request):
+        station_id: str = request.query_params.get("stationid")
+        if not station_id:
+            return Response({"detail": "stationid required"}, status=status.HTTP_400_BAD_REQUEST)
+        rainfield: str = request.query_params.get("rain")
+        waterlevel: str = request.query_params.get("waterlevel")
+        if rainfield:
+            res = WaterInfo.objects.filter(station=station_id).order_by('-times').values_list('rains', flat=True)[:12][
+                  ::-1]
+            return Response(res, status=status.HTTP_200_OK)
+        if waterlevel:
+            res = WaterInfo.objects.filter(station=station_id).order_by('-times').values_list('waterlevels', flat=True)[
+                  :12][::-1]
+            return Response(res, status=status.HTTP_200_OK)
+        return Response({"detail": "Rain or Waterlevel field flag required"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class WarnCancel(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        cancelinfo = WarnCancelDataSerializer(data=request.data)
+        if not cancelinfo.is_valid():
+            return Response(cancelinfo.errors, status=status.HTTP_400_BAD_REQUEST)
+        station_id: str = cancelinfo.validated_data["station_id"]
+        detail: str = cancelinfo.validated_data["detail"]
+
+        warning = WarningNotice.objects.filter(station=station_id, isCanceled=False).first()
+        if not warning:
+            return Response({"detail": '不存在告警'}, status=status.HTTP_404_NOT_FOUND)
+        warning.isCanceled = True
+        warning.executor = request.user
+        warning.canceltime = timezone.now()
+        WarningCloseDetail.objects.create(warning=warning, detail=detail)
+        warning.save()
+        return Response('Success', status=status.HTTP_200_OK)
+
+
+class GetLocation(APIView):
+    def get(self, request):
+        station_name: str = request.query_params.get("station_name")
+        params = {
+            "areaFlag": "1",
+            "sss": "全部",
+            "zl": "RR,ZZ,ZQ,DD,TT,",
+            "sklx": "4,5,3,2,1,9,",
+            "sfcj": "0",
+            "bxdj": "1,2,3,4,5,",
+            "zm": station_name,
+            "bx": "0"
+        }
+        try:
+            with httpx.Client(verify=False, timeout=10.0) as client:
+                resp = client.get("https://sqfb.slt.zj.gov.cn/rest/newList/getNewDataList", params=params)
+            return Response(resp.json())
+
+        except httpx.RequestError as exc:
+            return Response({"error": f"请求失败: {str(exc)}"}, status=500)

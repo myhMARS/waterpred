@@ -8,6 +8,9 @@ urlpatterns = [
     path("stationCount/", views.StationCount.as_view()),
     path("statistics/", views.StatisticsInfo.as_view()),
     path("warnings/", views.WarningInfo.as_view()),
+    path("warncancel/", views.WarnCancel.as_view()),
     path("stationlist/", views.StationList.as_view()),
+    path("recent/", views.RecentData.as_view()),
+    path("getlocation/", views.GetLocation.as_view()),
     path("test/", views.TaskTest.as_view()),
 ]
