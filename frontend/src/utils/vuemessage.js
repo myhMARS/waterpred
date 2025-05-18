@@ -1,4 +1,3 @@
-// utils/message.js
 import {createVNode, render} from 'vue'
 import Notification from '@/components/ui/notification/Notification.vue'
 
@@ -8,6 +7,8 @@ function getContainer() {
   if (!container) {
     container = document.createElement('div')
     container.className = 'fixed top-4 right-4 space-y-2 z-50'
+    container.style.position = 'fixed'
+    container.style.zIndex = '99999'
     document.body.appendChild(container)
   }
   return container
