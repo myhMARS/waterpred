@@ -8,6 +8,9 @@ import {useAuthStore} from "@/stores/authStatus.js";
 import UserProfileView from "@/views/User/UserProfile.vue";
 import ActivateView from "@/views/Auth/ActivateView.vue";
 import StationListView from "@/views/Manage/StationListView.vue";
+import StationdetailView from "@/views/Manage/StationdetailView.vue";
+import StationMap from "@/views/Manage/StationMap.vue";
+import AreaMap from "@/views/Manage/AreaMap.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,6 +63,21 @@ const router = createRouter({
       path:'/activate/:uid/:token',
       name: 'activate',
       component: ActivateView
+    },
+    {
+      path:'/station/:id',
+      name:'stationdetail',
+      component: StationdetailView
+    },
+    {
+      path:'/stationmap',
+      name: 'stationmap',
+      component: StationMap
+    },
+    {
+      path:'/areamap',
+      name: 'areamap',
+      component: AreaMap
     }
   ],
 })
