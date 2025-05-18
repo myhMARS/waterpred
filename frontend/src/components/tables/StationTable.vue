@@ -473,7 +473,7 @@
         <p
             class="pb-3 text-sm font-medium text-center text-gray-500 border-b border-gray-100 dark:border-gray-800 dark:text-gray-400 xl:border-b-0 xl:pb-0 xl:text-left"
         >
-          Showing {{ startEntry }} to {{ endEntry }} of {{ totalEntries }} entries
+          显示第 {{ startEntry }} 到 {{ endEntry }} 条，共 {{ totalEntries }} 条记录
         </p>
         <div class="flex items-center justify-center gap-0.5 pt-3 xl:justify-end xl:pt-0">
           <button
@@ -481,7 +481,7 @@
               :disabled="currentPage === 1"
               class="mr-2.5 flex items-center h-10 justify-center rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
           >
-            Previous
+            上一页
           </button>
           <button
               @click="goToPage(1)"
@@ -534,7 +534,7 @@
               :disabled="currentPage === totalPages"
               class="ml-2.5 flex items-center h-10 justify-center rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
           >
-            Next
+            下一页
           </button>
         </div>
       </div>
