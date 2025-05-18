@@ -18,9 +18,9 @@
 
 <script setup>
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import StatisticsChart from '@/components/waterinfos/StatisticsChart.vue'
-import RecentWarn from '@/components/waterinfos/RecentWarn.vue'
-import StationMetric from "@/components/waterinfos/StationMetric.vue";
+import StatisticsChart from '@/components/dashboard/StatisticsChart.vue'
+import RecentWarn from '@/components/dashboard/RecentWarn.vue'
+import StationMetric from "@/components/dashboard/StationMetric.vue";
 
 defineOptions({
   name: 'Dashborad'
