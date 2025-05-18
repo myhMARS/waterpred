@@ -242,7 +242,7 @@ const menuGroups = [
         icon: ListIcon,
         subItems: [
           {name: "站点列表", path: '/stationlist', pro: false},
-          {name: "告警处理", path: '', pro: false},
+          {name: "站点地图", path: '/stationmap', pro: false},
         ],
       },
       {
@@ -250,7 +250,7 @@ const menuGroups = [
         icon: LocationIcon,
         subItems: [
           {name: "地区列表", path: '', pro: false},
-          {name: "地区详情", path: '', pro: false},
+          {name: "地区详情", path: '/areamap', pro: false},
         ],
       },
 
