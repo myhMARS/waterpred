@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import OneToOneField
 
 
 class StationInfo(models.Model):
@@ -98,6 +99,12 @@ class WarningNotice(models.Model):
     class Meta:
         verbose_name = "警告通知信息"
         verbose_name_plural = verbose_name
+
+
+class WarningCloseDetail(models.Model):
+    id = models.AutoField(primary_key=True)
+    warning = OneToOneField(WarningNotice, on_delete=models.CASCADE)
+    detail = models.TextField(null=True, blank=True, verbose_name="详情")
 
 
 class Statistics(models.Model):
