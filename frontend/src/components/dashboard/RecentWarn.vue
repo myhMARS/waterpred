@@ -48,7 +48,7 @@
             />
           </svg>
 
-=          筛选
+          = 筛选
         </button>
 
         <div
@@ -136,12 +136,14 @@
           <td class="py-3 whitespace-nowrap">
             <div class="flex items-center gap-3">
               <div>
-                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                  {{ warning.name }}
-                </p>
-                <span class="text-gray-500 text-theme-xs dark:text-gray-400"
-                >站点编号 {{ warning.id }}</span
-                >
+                <a :href="`/station/${warning.id}`">
+                  <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                    {{ warning.name }}
+                  </p>
+                  <span class="text-gray-500 text-theme-xs dark:text-gray-400"
+                  >站点编号 {{ warning.id }}</span
+                  >
+                </a>
               </div>
             </div>
           </td>
@@ -231,24 +233,24 @@ const filter_warnings = ref([])
 async function fetchData() {
   try {
     const response = await axios.get(
-        'api/warnings/', {
+        '/api/warnings/', {
           params: filters.value
         })
-        const warnings_data = response.data
-        for (const warning of warnings_data) {
-          warnings.value.push({
-            name: warning.station_name,
-            id: warning.station,
-            max_level: warning.max_level,
-            isSuccess: warning.isSuccess,
-            noticetype: warning.noticetype,
-            noticetime: new Date(warning.noticetime).toLocaleString(),
-            isCancel: warning.isCanceled,
-            executor: warning.executor,
-            canceltime: new Date(warning.canceltime).toLocaleString(),
-          })
-        }
-        filter_warnings.value = warnings.value
+    const warnings_data = response.data
+    for (const warning of warnings_data) {
+      warnings.value.push({
+        name: warning.station_name,
+        id: warning.station,
+        max_level: warning.max_level,
+        isSuccess: warning.isSuccess,
+        noticetype: warning.noticetype,
+        noticetime: new Date(warning.noticetime).toLocaleString(),
+        isCancel: warning.isCanceled,
+        executor: warning.executor,
+        canceltime: new Date(warning.canceltime).toLocaleString(),
+      })
+    }
+    filter_warnings.value = warnings.value
   } catch (error) {
     console.log(error)
   }
