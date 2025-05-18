@@ -87,7 +87,6 @@ function activate() {
     uid: route.params.uid,
     token: route.params.token
   }
-  console.log(formData)
   axios.post('/auth/users/activation/', formData)
       .then(response => {
         showMessage({
