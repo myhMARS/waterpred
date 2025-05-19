@@ -51,7 +51,10 @@ async function loadAMap() {
     return await AMapLoader.load({
       key: amapApiKey,
       version: "2.0",
-      plugins: ["AMap.Scale", "AMap.DistrictSearch", "AMap.MapType", "AMap.LngLat", "AMap.LabelsLayer", "AMap.Geocoder"],
+      plugins: [
+        "AMap.Scale", "AMap.DistrictSearch", "AMap.MapType", "AMap.LngLat",
+        "AMap.LabelsLayer", "AMap.Geocoder", "AMap.Util", "AMap.CanvasLayer"
+      ],
     })
   } catch (error) {
     console.log(error)
@@ -128,11 +131,10 @@ function setMarkers(AMap, map, stations) {
   });
   let labelMarkers = []
   for (const station of stations) {
-    console.log('station', station)
     const icon = {
       type: "image", //图标类型，现阶段只支持 image 类型
       image: "/images/icons/station.png", //可访问的图片 URL
-      size: [30, 30], //图片尺寸
+      size: [20, 20], //图片尺寸
       anchor: "center", //图片相对 position 的锚点，默认为 bottom-center
     };
     const text = {
@@ -140,7 +142,7 @@ function setMarkers(AMap, map, stations) {
       direction: "right", //文字方向，有 icon 时为围绕文字的方向，没有 icon 时，则为相对 position 的位置
       style: {
         fontSize: 12, //字体大小
-        fillColor: station.status===0?"#22886f":"#ef4444",
+        fillColor: station.status === 0 ? "#22886f" : "#ef4444",
         strokeColor: "#fff", //描边颜色
         strokeWidth: 2, //描边宽度
       },
@@ -154,11 +156,48 @@ function setMarkers(AMap, map, stations) {
       text: text, //标注文本，将 text 对象传给 text 属性
     });
     labelMarker.on('click', function (e) {
-      router.push('/station/'+station.id)
+      router.push('/station/' + station.id)
     });
     labelMarkers.push(labelMarker)
     labelsLayer.add(labelMarkers);
     map.add(labelsLayer);
+  }
+}
+
+function setWarning(AMap, map, stations) {
+  for (const station of stations) {
+    if (station.status !== 0) {
+      let canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 200;
+      let context = canvas.getContext("2d");
+      context.fillStyle = "#ef4444";
+      context.strokeStyle = "white";
+      context.globalAlpha = 1;
+      context.lineWidth = 2;
+      let radious = 0;
+
+      function draw() {
+        context.clearRect(0, 0, 200, 200);
+        context.globalAlpha = (context.globalAlpha - 0.01 + 1) % 1;
+        radious = (radious + 1) % 100;
+        context.beginPath();
+        context.arc(100, 100, radious, 0, 2 * Math.PI);
+        context.fill();
+        context.stroke();
+        AMap.Util.requestAnimFrame(draw);
+      }
+
+      const CanvasLayer = new AMap.CanvasLayer({
+        canvas: canvas, //Canvas DOM 对象
+        bounds: new AMap.Bounds(
+            [station.position[0] - 0.04, station.position[1] - 0.03],
+            [station.position[0] + 0.04, station.position[1] + 0.03]
+        ), //图片范围大小的经纬度，传入西南和东北的经纬度坐标
+        zooms: [3, 18],
+      });
+      map.addLayer(CanvasLayer);
+      draw();
+    }
   }
 }
 
@@ -168,6 +207,7 @@ onMounted(async () => {
   map = await initMap(AMap)
   stations = await getLocation(AMap, stations)
   setMarkers(AMap, map, stations)
+  setWarning(AMap, map, stations)
 });
 
 onUnmounted(() => {
@@ -181,7 +221,7 @@ onUnmounted(() => {
 <style scoped>
 #container {
   width: 100%;
-  height: 630px;
+  height: 650px;
 }
 
 </style>

@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import datetime
 
 import httpx
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Subquery
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -10,9 +10,9 @@ from rest_framework.views import APIView
 
 from django.utils import timezone
 
-from .models import WaterInfo, WaterPred, StationInfo, Statistics, WarningNotice, WarningCloseDetail
+from .models import WaterInfo, WaterPred, StationInfo, Statistics, WarningNotice, WarningCloseDetail, AreaWeatherInfo
 from .serializers import WaterInfoDataSerializer, WaterInfoTimeSerializer, WaterPredDataSerializer, \
-    WarngingsSerializer, WarnCancelDataSerializer
+    WarngingsSerializer, WarnCancelDataSerializer, AreaInfoSerializer
 from .utils import predict
 
 
@@ -22,14 +22,35 @@ class TaskTest(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class AreaStationCount(APIView):
+    def get(self, request):
+        filters = {}
+        city = request.GET.get('city')
+        county: str = request.query_params.get('county')
+        if county:
+            filters['county'] = county
+        if city:
+            filters['city'] = city
+        stations = StationInfo.objects.filter(**filters)
+        warns = 0
+        for station in stations:
+            warns += WarningNotice.objects.filter(station=station,isCanceled=False).count()
+        res = {
+            'count': stations.count(),
+            'station_status': warns,
+        }
+        return Response(res, status=status.HTTP_200_OK)
+
+
 class StationList(APIView):
     def get(self, request):
         stationid: str = request.query_params.get("stationid")
+        county: str = request.query_params.get("county")
         filters = {}
         if stationid:
-            filters = {
-                'id': stationid,
-            }
+            filters['id'] = stationid
+        if county:
+            filters['county'] = county
 
         queryset = StationInfo.objects.filter(**filters)
         response = []
@@ -48,6 +69,26 @@ class StationList(APIView):
             stationinfo['status'] = WarningNotice.objects.filter(station=obj.id, isCanceled=False).count()
             response.append(stationinfo)
         return Response(response, status=status.HTTP_200_OK)
+
+
+class AreaList(APIView):
+    def get(self, request):
+        unique_counties = AreaWeatherInfo.objects.values_list('county', flat=True).distinct()
+        response = []
+        for county in unique_counties:
+            queryset = AreaWeatherInfo.objects.filter(county=county).order_by('-times').first()
+            data = AreaInfoSerializer(queryset).data
+            response.append(data)
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class AreaDetail(APIView):
+    def get(self, request):
+        county: str = request.query_params.get("county")
+        queryset = AreaWeatherInfo.objects.filter(county=county).order_by('-times')[:720][::-1]
+        data = AreaInfoSerializer(queryset, many=True).data
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class Water_Info(APIView):
@@ -228,7 +269,7 @@ class GetLocation(APIView):
             "bx": "0"
         }
         try:
-            with httpx.Client(verify=False, timeout=10.0) as client:
+            with httpx.Client(verify=False, timeout=5.0) as client:
                 resp = client.get("https://sqfb.slt.zj.gov.cn/rest/newList/getNewDataList", params=params)
             return Response(resp.json())
 

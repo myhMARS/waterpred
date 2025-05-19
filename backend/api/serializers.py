@@ -1,11 +1,17 @@
 from rest_framework import serializers
 
-from .models import WaterInfo, WaterPred, StationInfo, Statistics, WarningNotice
+from .models import WaterInfo, WaterPred, StationInfo, Statistics, WarningNotice, AreaWeatherInfo
 
 
 class WarnCancelDataSerializer(serializers.Serializer):
     station_id = serializers.CharField()
     detail = serializers.CharField(allow_blank=True)
+
+
+class AreaInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AreaWeatherInfo
+        fields = ['city', 'county', 'times', 'temperature', 'humidity', 'winddirection', 'windpower']
 
 
 class WaterInfoDataSerializer(serializers.ModelSerializer):
