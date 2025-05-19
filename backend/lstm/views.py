@@ -1,3 +1,5 @@
+import logging
+
 from django.core.cache import cache
 from django.http import HttpResponse
 from rest_framework import status
@@ -14,7 +16,9 @@ from accounts import permissions
 
 class TrainAPI(APIView):
     def get(self, request):
-        # TODO: 测试api待处理
+        # station_id = request.query_params.get("station_id")
+        # if not station_id:
+        #     return Response({"detail": "prarms station_id required"}, status=status.HTTP_400_BAD_REQUEST)
         start_train.delay()
         return HttpResponse("ok")
 
@@ -32,51 +36,62 @@ class ChangeModel(APIView):
     # permission_classes = [permissions.IsInAdminGroup]
 
     def post(self, request):
-        md5serializer = ModelChangeSerializer(data=request.data)
-        if not md5serializer.is_valid():
-            return Response(md5serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        changinfo = ModelChangeSerializer(data=request.data)
+        if not changinfo.is_valid():
+            return Response(changinfo.errors, status=status.HTTP_400_BAD_REQUEST)
         try:
-            cache_model = cache.get('waterlevel_model')
-            model = LSTMModels.objects.get(md5=md5serializer.validated_data["md5"])
-            scaler = ScalerPT.objects.get(lstm_model=md5serializer.validated_data["md5"])
-            if cache.get('device') == torch.device("cuda"):
-                cache_model.load_state_dict(torch.load(model.file))
-            elif cache.get('device') == torch.device("cpu"):
-                cache_model.load_state_dict(torch.load(model.file, map_location='cpu'))
+            cache_model = cache.get(changinfo.validated_data["station_id"], None)
+            model_obj = LSTMModels.objects.get(
+                md5=changinfo.validated_data["md5"],
+                station_id=changinfo.validated_data["station_id"]
+            )
+
+            if cache_model:
+                if cache_model["md5"] == changinfo.validated_data["md5"]:
+                    return Response({"detail": "该模型正在运行中，无需重复启用"}, status=status.HTTP_200_OK)
+                scaler = ScalerPT.objects.get(lstm_model=changinfo.validated_data["md5"])
+                if cache_model['device'] == torch.device("cuda"):
+                    cache_model["model"].load_state_dict(torch.load(model_obj.file))
+                elif cache_model('device') == torch.device("cpu"):
+                    cache_model["model"].load_state_dict(torch.load(model_obj.file, map_location='cpu'))
+                cache_model['model'].eval()
+
+                disabled_model_md5 = cache_model['md5']
+                LSTMModels.objects.filter(md5=disabled_model_md5).update(is_activate=False)
+                model_obj.is_activate = True
+                model_obj.save()
+                cache_model['md5'] = changinfo.validated_data["md5"]
+
+                scaler = joblib.load(scaler.file)
+                for _ in scaler:
+                    _.feature_names_in_ = None
+                cache_model['scaler'] = scaler
+
+                cache.set(changinfo.validated_data["station_id"], cache_model, timeout=None)
+
+                return Response({
+                    'detail': 'success'
+                },
+                    status=status.HTTP_200_OK
+                )
             else:
                 return Response({
-                    'detail': 'device非法'
+                    "detail": "站点未启用",
                 },
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            cache_model.eval()
-
-            disabled_model_md5 = cache.get('model_md5')
-            LSTMModels.objects.filter(md5=disabled_model_md5).update(is_activate=False)
-            LSTMModels.objects.filter(md5=md5serializer.validated_data["md5"]).update(is_activate=True)
-
-            cache.set('waterlevel_model', cache_model, timeout=None)
-            cache.set('model_md5', model.md5, timeout=None)
-            scaler = joblib.load(scaler.file)
-            for _ in scaler:
-                _.feature_names_in_ = None
-            cache.set('waterlevel_scaler', scaler, timeout=None)
-            return Response({
-                "md5": cache.get('model_md5'),
-            },
-                status=status.HTTP_200_OK
-            )
 
         except LSTMModels.DoesNotExist:
             return Response({
-                'detail': '未找到指定MD5值的资源'
+                'detail': '未找到站点或模型'
             },
                 status=status.HTTP_404_NOT_FOUND
             )
 
         except Exception as e:
+            logging.info(e)
             return Response({
-                'detail': f'服务器错误{e}',
+                'detail': f'服务器错误',
             },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
@@ -86,9 +101,19 @@ class ModelInfo(APIView):
     # permission_classes = [permissions.IsInAdminGroup]
 
     def get(self, request):
-        md5 = cache.get("model_md5")
-        return Response({
-            'md5': md5
-        },
-            status=status.HTTP_200_OK
-        )
+        station_id = request.query_params.get("station_id")
+        if not station_id:
+            return Response({"detail": "prarms station_id required"}, status=status.HTTP_400_BAD_REQUEST)
+        model_info = cache.get(station_id, None)
+        if model_info:
+            return Response({
+                'md5': model_info['md5'],
+            },
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response({
+                "detail": "未找到该站点模型"
+            },
+                status=status.HTTP_400_BAD_REQUEST
+            )

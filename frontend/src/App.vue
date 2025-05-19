@@ -1,21 +1,18 @@
 <template>
-  <RouterView />
+  <ThemeProvider>
+    <SidebarProvider>
+      <RouterView />
+    </SidebarProvider>
+  </ThemeProvider>
 </template>
 
-<script>
+<script setup>
+import ThemeProvider from '@/components/layout/ThemeProvider.vue'
+import SidebarProvider from '@/components/layout/SidebarProvider.vue'
 import { RouterView } from 'vue-router'
-import { useAuthStore} from "@/stores/authStatus.js";
+import { useAuthStore } from '@/stores/authStatus.js'
 
-
-
-export default {
-  name: 'App',
-  components:{
-    RouterView
-  },
-  beforeCreate() {
-    const authStore = useAuthStore()
-    authStore.initializeStore()
-  }
-}
+// 在 setup 中使用生命周期函数初始化 store
+const authStore = useAuthStore()
+authStore.initializeStore()
 </script>

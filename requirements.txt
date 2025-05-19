@@ -1,4 +1,4 @@
-Django==5.1.8
+Django==5.1.9
 torch==2.6.0
 numpy==2.2.3
 djangorestframework==3.15.2
@@ -15,9 +15,11 @@ xgboost==2.1.4
 seaborn==0.13.2
 scipy==1.15.2
 cryptography==44.0.2
-flask==3.1.0
+flask==3.1.1
 celery[redis,msgpack]~=5.4.0
 django-celery-beat==2.7.0
 flower==2.0.1
 djoser==2.3.1
 djangorestframework_simplejwt==5.5.0
+httpx==0.28.1
+django-shortuuidfield==0.1.3

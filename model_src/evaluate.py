@@ -12,29 +12,33 @@ import model.data_loader as data_loader
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def evaluate(model, loss_fn, dataloader, metrics):
+def evaluate(model, loss_fn, dataloader, metrics, metrice_dict):
     model.eval()
 
     summ = []
     for data_batch, labels_batch in dataloader:
         data_batch = data_batch.to(device)
+        labels_batch = labels_batch
         labels_batch = labels_batch.to(device)
 
         output_batch = model(data_batch)
-        loss = loss_fn(output_batch, labels_batch)
+        loss = loss_fn(output_batch.squeeze(-1), labels_batch)
 
         output_batch = output_batch.data.cpu().numpy()
         labels_batch = labels_batch.data.cpu().numpy()
 
         # show(output_batch, labels_batch)
         # print(output_batch.squeeze(-1), labels_batch)
-        summary_batch = {metric: metrics[metric](output_batch, labels_batch)
+        summary_batch = {metric: metrics[metric](output_batch.squeeze(-1), labels_batch)
                          for metric in metrics}
         summary_batch['loss'] = loss.item()
         summ.append(summary_batch)
 
     metrics_mean = {metric: np.mean([x[metric]
                                      for x in summ]) for metric in summ[0]}
+    metrice_dict["loss_list"].append(metrics_mean['loss'])
+    metrice_dict["rmse_list"].append(metrics_mean['RMSE'])
+    metrice_dict["mae_list"].append(metrics_mean['MAE'])
     metrics_string = " ; ".join("{}: {:010.7f}".format(k, v)
                                 for k, v in metrics_mean.items())
     logging.info("- Eval metrics : " + metrics_string)
