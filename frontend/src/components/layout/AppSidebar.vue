@@ -249,8 +249,8 @@ const menuGroups = [
         name: "地区管理",
         icon: LocationIcon,
         subItems: [
-          {name: "地区列表", path: '', pro: false},
-          {name: "地区详情", path: '/areamap', pro: false},
+          {name: "地区列表", path: '/arealist', pro: false},
+          {name: "地区地图", path: '/areamap', pro: false},
         ],
       },
 
@@ -265,35 +265,6 @@ const menuGroups = [
         name: "个人资料",
         path: "/profile",
       },
-      //     {
-      //       icon: PieChartIcon,
-      //       name: "Charts",
-      //       subItems: [
-      //         { name: "Line Chart", path: "/line-chart", pro: false },
-      //         { name: "Bar Chart", path: "/bar-chart", pro: false },
-      //       ],
-      //     },
-      //     {
-      //       icon: BoxCubeIcon,
-      //       name: "Ui Elements",
-      //       subItems: [
-      //         { name: "Alerts", path: "/alerts", pro: false },
-      //         { name: "Avatars", path: "/avatars", pro: false },
-      //         { name: "Badge", path: "/badge", pro: false },
-      //         { name: "Buttons", path: "/buttons", pro: false },
-      //         { name: "Images", path: "/images", pro: false },
-      //         { name: "Videos", path: "/videos", pro: false },
-      //       ],
-      //     },
-      //     {
-      //       icon: PlugInIcon,
-      //       name: "Authentication",
-      //       subItems: [
-      //         { name: "Signin", path: "/signin", pro: false },
-      //         { name: "Signup", path: "/signup", pro: false },
-      //       ],
-      //     },
-      //     // ... Add other menu items here
     ],
   },
 ];
