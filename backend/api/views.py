@@ -3,12 +3,13 @@ from datetime import datetime
 
 import httpx
 from django.db.models import QuerySet
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from django.utils import timezone
 
 from .models import WaterInfo, WaterPred, StationInfo, Statistics, WarningNotice, WarningCloseDetail, AreaWeatherInfo
 from .serializers import WaterInfoDataSerializer, WaterInfoTimeSerializer, WaterPredDataSerializer, \
@@ -266,8 +267,9 @@ class WarnCancel(APIView):
         return Response('Success', status=status.HTTP_200_OK)
 
 
+@method_decorator(cache_page(30 * 60), name='dispatch')
 class GetLocation(APIView):
-    permission_classes = [IsAuthenticated, ]
+    # permission_classes = [IsAuthenticated, ]
 
     def get(self, request):
         station_name: str = request.query_params.get("station_name")

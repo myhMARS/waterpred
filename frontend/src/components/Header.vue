@@ -47,7 +47,7 @@
         </div>
       </Popover>
       <div v-else class="hidden lg:flex lg:flex-1 lg:justify-end">
-        <a href="/login" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+        <a href="/login" class="text-sm/6 font-semibold text-gray-900">登录<span aria-hidden="true">&rarr;</span></a>
       </div>
 
     </nav>
@@ -125,8 +125,6 @@ export default {
       navigation: [
         { name: '首页', href: '/' },
         { name: '监控', href: '/dashboard' },
-        { name: '功能', href: '#' },
-        { name: '应用前景', href: '#' },
         { name: '团队', href: '/team' },
       ],
       mobileMenuOpen: ref(false),
