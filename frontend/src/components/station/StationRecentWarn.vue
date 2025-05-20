@@ -226,7 +226,10 @@ async function fetchData() {
   try {
     const response = await axios.get(
         '/api/warnings/', {
-          params: filters.value
+          params: filters.value,
+          headers: {
+            Authorization: `JWT ${localStorage.getItem('token')}`
+          }
         })
     console.log(response.data)
     const warnings_data = response.data

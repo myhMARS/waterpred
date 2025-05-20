@@ -70,27 +70,42 @@ const router = createRouter({
         {
             path: '/station/:id',
             name: 'stationdetail',
-            component: StationdetailView
+            component: StationdetailView,
+            meta: {
+                requireLogin: true
+            }
         },
         {
             path: '/stationmap',
             name: 'stationmap',
-            component: StationMap
+            component: StationMap,
+            meta: {
+                requireLogin: true
+            }
         },
         {
             path: '/areamap',
             name: 'areamap',
-            component: AreaMap
+            component: AreaMap,
+            meta: {
+                requireLogin: true
+            }
         },
         {
             path: '/arealist',
             name: '/arealist',
-            component: AreaListView
+            component: AreaListView,
+            meta: {
+                requireLogin: true
+            }
         },
         {
             path: '/area/:county',
             name: 'areadetail',
-            component: AreadetialView
+            component: AreadetialView,
+            meta: {
+                requireLogin: true
+            }
         },
         {
             path: '/:pathMatch(.*)*',

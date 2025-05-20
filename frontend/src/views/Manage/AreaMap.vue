@@ -18,7 +18,8 @@ import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AMapLoader from '@amap/amap-jsapi-loader'
 import axios from "axios";
-import { useRouter } from 'vue-router'
+import {useRouter} from 'vue-router'
+
 const router = useRouter()
 
 const currentPageTitle = ref('区域地图')
@@ -65,7 +66,12 @@ async function getStationCount(location) {
   }
 
   try {
-    const response = await axios.get("/api/areastationcount/", {params})
+    const response = await axios.get("/api/areastationcount/", {
+      params: params,
+      headers: {
+        Authorization: `JWT ${localStorage.getItem('token')}`
+      }
+    })
     return response.data
   } catch (error) {
     console.error(error)
@@ -156,11 +162,11 @@ async function loadGeoJsonByZoom(AMap, map, zoom) {
     const name = polygon.getExtData()?.properties?.name || '未知'
     const stationcount = await getStationCount(name)
     polygon.setOptions({
-      fillOpacity: stationcount.count/10+0.05,
-      fillColor: stationcount.station_status===0?'#1791fc':'#ef4444'
+      fillOpacity: stationcount.count / 10 + 0.05,
+      fillColor: stationcount.station_status === 0 ? '#1791fc' : '#ef4444'
     })
     const label = new AMap.Text({
-      text: name + ',站点数量:' + String(stationcount.count)+'/异常数量:'+String(stationcount.station_status),
+      text: name + ',站点数量:' + String(stationcount.count) + '/异常数量:' + String(stationcount.station_status),
       position: polygon.getBounds().getCenter(),
       style: {
         background: 'rgba(255,255,255,0.8)',
@@ -174,23 +180,23 @@ async function loadGeoJsonByZoom(AMap, map, zoom) {
 
     polygon.on('mouseover', () => {
       polygon.setOptions({
-        fillColor: stationcount.station_status===0?'#1791fc':'#ef4444',
-        fillOpacity: stationcount.station_status/100+0.05+0.4,
+        fillColor: stationcount.station_status === 0 ? '#1791fc' : '#ef4444',
+        fillOpacity: stationcount.station_status / 100 + 0.05 + 0.4,
         strokeWeight: 2,
         strokeColor: '#ff6600'
       })
       label.setMap(map)
     }, {passive: true})
     if (name.slice(-1) !== '市') {
-      polygon.on('click', ()=>{
-        router.push(`/area/${name.slice(0,-1)}`)
+      polygon.on('click', () => {
+        router.push(`/area/${name.slice(0, -1)}`)
       })
     }
 
     polygon.on('mouseout', () => {
       polygon.setOptions({
-        fillOpacity: stationcount.count/10+0.05,
-        fillColor: stationcount.station_status===0?'#1791fc':'#ef4444',
+        fillOpacity: stationcount.count / 10 + 0.05,
+        fillColor: stationcount.station_status === 0 ? '#1791fc' : '#ef4444',
         strokeWeight: 1,
         strokeColor: '#1791fc'
       })

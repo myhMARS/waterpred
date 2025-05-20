@@ -418,12 +418,14 @@
             class=""
         >
           <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
-            <a class="block font-medium text-gray-800 text-theme-sm dark:text-white/90" :href="`/station/${station.id}`">
+            <a class="block font-medium text-gray-800 text-theme-sm dark:text-white/90"
+               :href="`/station/${station.id}`">
               {{ station.id }}
             </a>
           </td>
           <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
-            <a class="block font-medium text-gray-800 text-theme-sm dark:text-white/90" :href="`/station/${station.id}`">
+            <a class="block font-medium text-gray-800 text-theme-sm dark:text-white/90"
+               :href="`/station/${station.id}`">
               {{ station.name }}
             </a>
           </td>
@@ -457,7 +459,7 @@
                 }"
                   class="rounded-full px-2 py-0.5 text-theme-xs font-medium"
               >
-                {{ station.status?'告警中': '正常' }}
+                {{ station.status ? '告警中' : '正常' }}
               </span>
           </td>
         </tr>
@@ -566,10 +568,15 @@ const perPage = ref(10)
 
 /** @type {import('vue').Ref<Station[]>} */
 const data = ref([])
+
 async function fetchdata() {
   try {
-    const response = await axios.get('/api/stationlist/')
-    for (let station of response.data){
+    const response = await axios.get('/api/stationlist/', {
+      headers: {
+        Authorization: `JWT ${localStorage.getItem('token')}`
+      }
+    })
+    for (let station of response.data) {
       station.time = new Date(station.time).toLocaleString()
       data.value.push(station)
     }

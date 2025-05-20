@@ -474,15 +474,19 @@ const perPage = ref(10)
 
 /** @type {import('vue').Ref<Area[]>} */
 const data = ref([])
-const WINDDIRECTION_MAP = ['N','NE','E','SE',"S",'SW','W','NW']
+const WINDDIRECTION_MAP = ['N', 'NE', 'E', 'SE', "S", 'SW', 'W', 'NW']
 
 async function fetchdata() {
   try {
-    const response = await axios.get('/api/arealist/')
+    const response = await axios.get('/api/arealist/', {
+      headers: {
+        Authorization: `JWT ${localStorage.getItem('token')}`
+      }
+    })
     for (let area of response.data) {
       area.times = new Date(area.times).toLocaleString()
       console.log(area.winddirection)
-      area.winddirection = WINDDIRECTION_MAP[Number(area.winddirection)-1]
+      area.winddirection = WINDDIRECTION_MAP[Number(area.winddirection) - 1]
       data.value.push(area)
     }
   } catch (error) {

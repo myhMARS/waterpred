@@ -542,8 +542,11 @@ const data = ref([])
 async function fetchdata() {
   try {
     const response = await axios.get('/api/stationlist/', {
-      params:{
+      params: {
         county: county
+      },
+      headers: {
+        Authorization: `JWT ${localStorage.getItem('token')}`
       }
     })
     for (let station of response.data) {

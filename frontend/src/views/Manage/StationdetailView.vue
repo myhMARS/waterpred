@@ -43,11 +43,15 @@ const stationid = route.params.id
 const currentPageTitle = ref('')
 const metrics = ref({})
 const status = ref(0)
+
 async function fetchMetrics() {
   try {
     const response = await axios.get('/api/stationlist/', {
       params: {
         'stationid': stationid
+      },
+      headers: {
+        Authorization: `JWT ${localStorage.getItem('token')}`
       }
     })
     currentPageTitle.value = response.data[0].name
@@ -93,6 +97,9 @@ async function fetchWaterLevelChart() {
       params: {
         'station_id': stationid,
         'length': 600
+      },
+      headers: {
+        Authorization: `JWT ${localStorage.getItem('token')}`
       }
     })
     for (const record of response.data.data) {

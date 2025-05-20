@@ -15,5 +15,4 @@ urlpatterns = [
     path("areastationcount/", views.AreaStationCount.as_view()),
     path("recent/", views.RecentData.as_view()),
     path("getlocation/", views.GetLocation.as_view()),
-    path("test/", views.TaskTest.as_view()),
 ]

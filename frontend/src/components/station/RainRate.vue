@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed} from 'vue'
+import {onMounted, ref, computed} from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import axios from "axios";
 
@@ -113,6 +113,9 @@ async function fetchData() {
       params: {
         stationid: stationid,
         rain: true
+      },
+      headers: {
+        Authorization: `JWT ${localStorage.getItem('token')}`
       }
     })
     series.value[0].data = response.data

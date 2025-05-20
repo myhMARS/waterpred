@@ -154,6 +154,9 @@ async function fetchdata() {
   await axios.get('/api/statistics/', {
     params: {
       time_filter: selected.value
+    },
+    headers: {
+      Authorization: `JWT ${localStorage.getItem('token')}`
     }
   })
       .then(response => {

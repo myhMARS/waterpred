@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import datetime
 
 import httpx
-from django.db.models import QuerySet, Subquery
+from django.db.models import QuerySet
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,16 +13,11 @@ from django.utils import timezone
 from .models import WaterInfo, WaterPred, StationInfo, Statistics, WarningNotice, WarningCloseDetail, AreaWeatherInfo
 from .serializers import WaterInfoDataSerializer, WaterInfoTimeSerializer, WaterPredDataSerializer, \
     WarngingsSerializer, WarnCancelDataSerializer, AreaInfoSerializer
-from .utils import predict
-
-
-class TaskTest(APIView):
-    def get(self, request):
-        print(predict('63000200', [84.3 - i / 10 for i in range(12)]))
-        return Response(status=status.HTTP_200_OK)
 
 
 class AreaStationCount(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         filters = {}
         city = request.GET.get('city')
@@ -34,7 +29,7 @@ class AreaStationCount(APIView):
         stations = StationInfo.objects.filter(**filters)
         warns = 0
         for station in stations:
-            warns += WarningNotice.objects.filter(station=station,isCanceled=False).count()
+            warns += WarningNotice.objects.filter(station=station, isCanceled=False).count()
         res = {
             'count': stations.count(),
             'station_status': warns,
@@ -43,6 +38,8 @@ class AreaStationCount(APIView):
 
 
 class StationList(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         stationid: str = request.query_params.get("stationid")
         county: str = request.query_params.get("county")
@@ -72,6 +69,8 @@ class StationList(APIView):
 
 
 class AreaList(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         unique_counties = AreaWeatherInfo.objects.values_list('county', flat=True).distinct()
         response = []
@@ -84,6 +83,8 @@ class AreaList(APIView):
 
 
 class AreaDetail(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         county: str = request.query_params.get("county")
         queryset = AreaWeatherInfo.objects.filter(county=county).order_by('-times')[:720][::-1]
@@ -92,6 +93,8 @@ class AreaDetail(APIView):
 
 
 class Water_Info(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         station_id: str = request.query_params.get("station_id")
         time_length: str = request.query_params.get("length", default='18')
@@ -118,6 +121,8 @@ class Water_Info(APIView):
 
 
 class StationCount(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         stations = StationInfo.objects.all()
         stations_count = len(stations)
@@ -142,6 +147,8 @@ class StationCount(APIView):
 
 
 class StatisticsInfo(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         time_filter = request.query_params.get("time_filter")
         if not time_filter:
@@ -198,6 +205,8 @@ class StatisticsInfo(APIView):
 
 
 class WarningInfo(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         station: str = request.query_params.get("station")
         isCancel: str = request.query_params.get("isCancel")
@@ -217,6 +226,8 @@ class WarningInfo(APIView):
 
 
 class RecentData(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         station_id: str = request.query_params.get("stationid")
         if not station_id:
@@ -256,6 +267,8 @@ class WarnCancel(APIView):
 
 
 class GetLocation(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         station_name: str = request.query_params.get("station_name")
         params = {

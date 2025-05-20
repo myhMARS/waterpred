@@ -31,7 +31,11 @@ let map = null;
 
 async function getStations() {
   try {
-    const response = await axios.get('/api/stationlist/')
+    const response = await axios.get('/api/stationlist/', {
+      headers: {
+        Authorization: `JWT ${localStorage.getItem('token')}`
+      }
+    })
     let stations = []
     for (const station of response.data) {
       stations.push({
@@ -68,6 +72,9 @@ async function getLocation(AMap, stations) {
         params: {
           station_name: station.name
         },
+        headers: {
+          Authorization: `JWT ${localStorage.getItem('token')}`
+        }
       })
       station.position = [response.data.qt[0].jd, response.data.qt[0].wd]
     }

@@ -59,6 +59,9 @@ async function fetchData() {
     const response = await axios.get("/api/areadetail/", {
       params: {
         county: county
+      },
+      headers: {
+        Authorization: `JWT ${localStorage.getItem('token')}`
       }
     })
     data.value.startDate = new Date(response.data[0]?.times).toLocaleString()
