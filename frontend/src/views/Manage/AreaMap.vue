@@ -44,8 +44,7 @@ async function loadAMap() {
       key: amapApiKey,
       version: "2.0",
       plugins: [
-        "AMap.DistrictSearch", "AMap.MapType", "AMap.LngLat",
-        "AMap.LabelsLayer", "AMap.Geocoder", "AMap.Util", "AMap.CanvasLayer", "AMap.GeoJSON"
+        "AMap.DistrictSearch", "AMap.MapType", "AMap.GeoJSON"
       ],
     })
   } catch (error) {
@@ -131,9 +130,9 @@ async function loadGeoJsonByZoom(AMap, map, zoom) {
   let geojsonUrl = ''
 
   if (zoom <= 9) {
-    geojsonUrl = '/geo/zhejiang-city.json'      // 省级
+    geojsonUrl = '/geo/zhejiang-city.json'
   } else {
-    geojsonUrl = '/geo/zhejiang.json'      // 市级或县级
+    geojsonUrl = '/geo/zhejiang.json'
   }
 
   const res = await axios.get(geojsonUrl)

@@ -56,8 +56,7 @@ async function loadAMap() {
       key: amapApiKey,
       version: "2.0",
       plugins: [
-        "AMap.Scale", "AMap.DistrictSearch", "AMap.MapType", "AMap.LngLat",
-        "AMap.LabelsLayer", "AMap.Geocoder", "AMap.Util", "AMap.CanvasLayer"
+        "AMap.DistrictSearch", "AMap.MapType"
       ],
     })
   } catch (error) {
