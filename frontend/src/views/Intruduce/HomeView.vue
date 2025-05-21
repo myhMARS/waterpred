@@ -24,7 +24,7 @@
               <a href="#" class="text-sm/6 font-semibold text-gray-900">更多 <span aria-hidden="true">→</span></a>
             </div>
           </div>
-          <img src="../../assets/img/location.jpg" alt=""
+          <img src="/images/location.jpg" alt=""
                class="mt-8 aspect-6/5 w-full max-w-lg rounded-2xl object-cover sm:mt-16 lg:mt-0 lg:max-w-none xl:row-span-2 xl:row-end-2 xl:mt-36"/>
         </div>
       </div>

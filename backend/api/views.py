@@ -269,7 +269,7 @@ class WarnCancel(APIView):
 
 @method_decorator(cache_page(30 * 60), name='dispatch')
 class GetLocation(APIView):
-    # permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, ]
 
     def get(self, request):
         station_name: str = request.query_params.get("station_name")
