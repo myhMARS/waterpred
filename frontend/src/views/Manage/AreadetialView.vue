@@ -42,7 +42,6 @@ import ComponentCard from "@/components/common/ComponentCard.vue";
 
 const route = useRoute()
 const county = route.params.county
-console.log(county)
 const currentPageTitle = ref('')
 currentPageTitle.value = String(county)
 const data = ref({

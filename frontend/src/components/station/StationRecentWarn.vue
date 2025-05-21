@@ -199,7 +199,7 @@ const filters = ref({
   isCancel: '',
   isSuccess: ''
 })
-console.log(filters.value)
+
 const toggleFilter = () => {
   showFilter.value = !showFilter.value
 }
@@ -209,7 +209,6 @@ const clearFilters = () => {
 }
 
 const applyFilters = () => {
-  console.log('Applied filters:', filters.value)
   filter_warnings.value = filter_warnings.value.filter(warning => {
     const matchSuccess = filters.value.isSuccess === '' || warning.isSuccess === filters.value.isSuccess;
     const matchCancel = filters.value.isCancel === '' || warning.isCancel === filters.value.isCancel;
@@ -231,7 +230,6 @@ async function fetchData() {
             Authorization: `JWT ${localStorage.getItem('token')}`
           }
         })
-    console.log(response.data)
     const warnings_data = response.data
     for (const warning of warnings_data) {
       warnings.value.push({

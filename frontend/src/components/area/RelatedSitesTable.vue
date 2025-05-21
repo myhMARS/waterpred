@@ -522,7 +522,7 @@ const {county} = defineProps({
     required: true
   }
 })
-console.log(county)
+
 /**
  * @typedef {Object} Station
  * @property {string} id

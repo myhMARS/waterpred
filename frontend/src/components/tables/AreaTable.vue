@@ -485,7 +485,6 @@ async function fetchdata() {
     })
     for (let area of response.data) {
       area.times = new Date(area.times).toLocaleString()
-      console.log(area.winddirection)
       area.winddirection = WINDDIRECTION_MAP[Number(area.winddirection) - 1]
       data.value.push(area)
     }

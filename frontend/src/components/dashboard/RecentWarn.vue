@@ -217,7 +217,6 @@ const clearFilters = () => {
 }
 
 const applyFilters = () => {
-  console.log('Applied filters:', filters.value)
   filter_warnings.value = filter_warnings.value.filter(warning => {
     const matchSuccess = filters.value.isSuccess === '' || warning.isSuccess === filters.value.isSuccess;
     const matchCancel = filters.value.isCancel === '' || warning.isCancel === filters.value.isCancel;
