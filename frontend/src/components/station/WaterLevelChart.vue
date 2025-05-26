@@ -14,7 +14,7 @@
           class="flex flex-row-reverse items-center justify-end gap-0.5 sm:flex-col sm:items-start"
       >
         <div class="flex flex-row-reverse items-center gap-3 sm:flex-row sm:gap-2">
-          <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ series[0]?.data?.length ? series[0].data.at(-1).y + ' mm' : '暂无数据' }}</h4>
+          <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ series[0]?.data?.length ? series[0].data.at(-1).y + ' m' : '暂无数据' }}</h4>
 
         </div>
 
