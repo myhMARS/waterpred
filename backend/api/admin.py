@@ -43,12 +43,18 @@ class StationInfoAdmin(admin.ModelAdmin):
 
 @admin.register(WarningNotice)
 class WarningNoticeAdmin(admin.ModelAdmin):
-    list_display = ("station_name", "noticetime", "isCanceled", "canceltime")
+    list_display = ("station_name", "noticetime", "isCanceled", "canceltime", "cancel_detail",)
 
     def station_name(self, obj):
         return obj.station.name
 
     station_name.short_description = "站名"
+
+    def cancel_detail(self, obj):
+        # 判断是否有关联的 close_detail 对象
+        return obj.close_detail.detail if hasattr(obj, 'close_detail') else "-"
+
+    cancel_detail.short_description = "详情"
 
     list_filter = ("station__name", "isCanceled")
     search_fields = ("station__name", 'station__id')
@@ -68,4 +74,3 @@ class StatisticsAdmin(admin.ModelAdmin):
     @staticmethod
     def station_name(obj):
         return obj.station.name
-
