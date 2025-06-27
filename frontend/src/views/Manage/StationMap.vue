@@ -75,7 +75,7 @@ async function getLocation(AMap, stations) {
           Authorization: `JWT ${localStorage.getItem('token')}`
         }
       })
-      station.position = [response.data.qt[0].jd, response.data.qt[0].wd]
+      station.position = response.data
     }
     return stations
   } catch (error) {

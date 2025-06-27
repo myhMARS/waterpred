@@ -36,7 +36,7 @@ class LSTMModels(models.Model):
     is_activate = models.BooleanField(default=False, verbose_name="启用状态")
 
     class Meta:
-        verbose_name = "LSTM模型"
+        verbose_name = "深度学习模型"
         verbose_name_plural = verbose_name
 
 

@@ -5,9 +5,9 @@ import math
 from sklearn.metrics import mean_squared_error
 
 
-class Waterlevel_Transformer_Model(nn.Module):
+class Waterlevel_Model(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=1, max_len=500):
-        super(Waterlevel_Transformer_Model, self).__init__()
+        super(Waterlevel_Model, self).__init__()
         self.input_proj = nn.Linear(input_size, hidden_size)
 
         pe = torch.zeros(max_len, hidden_size)
@@ -18,7 +18,7 @@ class Waterlevel_Transformer_Model(nn.Module):
         pe = pe.unsqueeze(0)
         self.register_buffer('positional_encoding', pe)
 
-        encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_size, nhead=8, batch_first=True, dropout=0.2)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_size, nhead=4, batch_first=True, dropout=0.2)
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
 
         self.output_proj = nn.Linear(hidden_size, output_size)
@@ -31,6 +31,7 @@ class Waterlevel_Transformer_Model(nn.Module):
 
         x = self.transformer(x)
 
+        # 取最后一个时间步的表示
         x = x[:, -1, :]
 
         out = self.output_proj(x)

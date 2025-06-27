@@ -273,20 +273,6 @@ class GetLocation(APIView):
 
     def get(self, request):
         station_name: str = request.query_params.get("station_name")
-        params = {
-            "areaFlag": "1",
-            "sss": "全部",
-            "zl": "RR,ZZ,ZQ,DD,TT,",
-            "sklx": "4,5,3,2,1,9,",
-            "sfcj": "0",
-            "bxdj": "1,2,3,4,5,",
-            "zm": station_name,
-            "bx": "0"
-        }
-        try:
-            with httpx.Client(verify=False, timeout=5.0) as client:
-                resp = client.get("https://sqfb.slt.zj.gov.cn/rest/newList/getNewDataList", params=params)
-            return Response(resp.json())
-
-        except httpx.RequestError as exc:
-            return Response({"error": f"请求失败: {str(exc)}"}, status=500)
+        data = StationInfo.objects.filter(name=station_name).first()
+        res = [data.longitude, data.latitude]
+        return Response(res, status=status.HTTP_200_OK)

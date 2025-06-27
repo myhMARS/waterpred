@@ -8,6 +8,8 @@ class StationInfo(models.Model):
     name = models.CharField(max_length=20, verbose_name="站名")
     city = models.CharField(max_length=20, verbose_name="城市")
     county = models.CharField(max_length=20, verbose_name="区/县")
+    longitude = models.FloatField(verbose_name="经度")
+    latitude = models.FloatField(verbose_name="纬度")
     flood_limit = models.FloatField(verbose_name="汛限水位", null=True)
     guaranteed = models.FloatField(verbose_name="保证水位", null=True)
     warning = models.FloatField(verbose_name="警告水位", null=True)

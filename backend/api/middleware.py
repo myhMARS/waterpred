@@ -7,7 +7,7 @@ from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
 from backend.logging_config import get_task_logger
 from lstm.models import LSTMModels, ScalerPT
-from lstm.train_src.model_net.net import Waterlevel_Model
+from lstm.train_src.model_net.net import Waterlevel_Transformer_Model
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger = get_task_logger(__name__)
@@ -24,7 +24,8 @@ class ModelMiddleware:
         models_pt = LSTMModels.objects.filter(is_activate=True).all()
         for model_pt in models_pt:
             scaler_path = ScalerPT.objects.get(lstm_model=model_pt.md5)
-            model = Waterlevel_Model(model_pt.input_size, model_pt.hidden_size, model_pt.output_size).to(device)
+            model = Waterlevel_Transformer_Model(model_pt.input_size, model_pt.hidden_size, model_pt.output_size).to(
+                device)
             if device == torch.device("cuda"):
                 model.load_state_dict(torch.load(model_pt.file))
             else:
@@ -77,7 +78,7 @@ class WarningMessageTaskMiddleware:
                 defaults={
                     'interval': schedule,
                     'task': 'api.tasks.update',
-                    'args': json.dumps(["http://127.0.0.1:5000/api/weather","http://127.0.0.1:5000/api/waterinfo"]),
+                    'args': json.dumps(["http://127.0.0.1:5000/api/weather", "http://127.0.0.1:5000/api/waterinfo"]),
                 }
             )
         except Exception as e:

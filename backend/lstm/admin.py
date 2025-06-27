@@ -7,7 +7,7 @@ from django.db import transaction
 from django.utils.safestring import mark_safe
 
 from .models import LSTMModels, ScalerPT, TrainResult
-from .train_src.model_net.net import Waterlevel_Model
+from .train_src.model_net.net import Waterlevel_Transformer_Model
 
 
 # Register your models here.
@@ -55,7 +55,7 @@ class LSTMModelAdmin(admin.ModelAdmin):
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             print(obj.input_size, obj.hidden_size, obj.output_size)
             runing_model_info = {
-                'model': Waterlevel_Model(obj.input_size, obj.hidden_size, obj.output_size).to(device),
+                'model': Waterlevel_Transformer_Model(obj.input_size, obj.hidden_size, obj.output_size).to(device),
                 'device': device,
                 'md5': obj.md5,
             }

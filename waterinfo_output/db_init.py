@@ -15,6 +15,8 @@ areaweather["county"] = "临安"
 stationinfo = pd.DataFrame({
     "name": ['里畈西坑溪', '里畈水库', '桥东村'],
     "id": ["63000110", "63000100", "63000200"],
+    "longitude": [119.598028, 119.60738, 119.626388],
+    "latitude": [30.346618, 30.32999, 30.263262],
     "city": ["杭州"] * 3,
     "county": ["临安"] * 3,
     "flood_limit": [None, 234.73, None],

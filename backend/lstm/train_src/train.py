@@ -164,7 +164,7 @@ def train_lstm_model(dataset, input_size, hidden_size, output_size, time_stamp, 
         )
         test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 
-        model = net.Waterlevel_Model(input_size, hidden_size, output_size).to(device)
+        model = net.Waterlevel_Transformer_Model(input_size, hidden_size, output_size).to(device)
         optimizer = optim.AdamW(model.parameters(), lr=0.00001)
         loss_fn = nn.MSELoss()
         metrics = net.metrics

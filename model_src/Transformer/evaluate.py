@@ -3,11 +3,6 @@ import logging
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
-from torch.backends.cuda import preferred_linalg_library
-from torch.utils.data import DataLoader
-
-import model.data_loader as data_loader
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -22,14 +17,14 @@ def evaluate(model, loss_fn, dataloader, metrics, metrice_dict):
         labels_batch = labels_batch.to(device)
 
         output_batch = model(data_batch)
-        loss = loss_fn(output_batch.squeeze(-1), labels_batch)
+        loss = loss_fn(output_batch, labels_batch)
 
         output_batch = output_batch.data.cpu().numpy()
         labels_batch = labels_batch.data.cpu().numpy()
 
         # show(output_batch, labels_batch)
         # print(output_batch.squeeze(-1), labels_batch)
-        summary_batch = {metric: metrics[metric](output_batch.squeeze(-1), labels_batch)
+        summary_batch = {metric: metrics[metric](output_batch, labels_batch)
                          for metric in metrics}
         summary_batch['loss'] = loss.item()
         summ.append(summary_batch)

@@ -114,8 +114,6 @@ def update_predict(station_id):
     times = [item['times'] for item in waterinfos.data]
     current_time = waterinfos.data[-1]['times']
     current_time = datetime.fromisoformat(current_time)
-    # print(current_time.year, current_time.month, current_time.day, current_time.hour, current_time.minute)
-    # try:
     predict_flag = True
     current_waterlevel = [waterinfos.data[-1]['waterlevels']]
     output = []
@@ -138,8 +136,6 @@ def update_predict(station_id):
         logger.debug(f'插入预测数据{station_id}-{times}')
     output = current_waterlevel + output
     check_warning(timezone.make_naive(current_time), station_id, output)
-    # except Exception as e:
-    #     logger.error(f"{e},{station_id}-{times}")
     return 0
 
 
